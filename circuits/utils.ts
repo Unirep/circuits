@@ -12,10 +12,7 @@ const buildPath = "../build"
 const compileAndLoadCircuit = async (
     circuitPath: string
 ) => {
-    const circuit = await circom.tester(path.join(
-        __dirname,
-        `../circuits/${circuitPath}`,
-    ))
+    const circuit = await circom.tester(circuitPath)
 
     await circuit.loadSymbols()
 

@@ -1,10 +1,9 @@
 {
   "name": "@unirep/circuits",
   "version": "1.0.0",
-  "main": "index.ts",
-  "type": "commonjs",
+  "main": "build/utils.js",
   "scripts": {
-    "build": "yarn downloadPtau && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark",
+    "build": "yarn downloadPtau && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark && tsc",
     "downloadPtau": "./scripts/downloadPtau.sh",
     "buildVerifyEpochKeySnark": "./scripts/buildVerifyEpochKeySnark.sh",
     "buildUserStateTransitionSnark": "./scripts/buildUserStateTransitionSnark.sh",
