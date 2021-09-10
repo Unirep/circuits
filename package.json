@@ -1,0 +1,31 @@
+{
+  "name": "@unirep/circuits",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "type": "commonjs",
+  "scripts": {
+    "build": "yarn downloadPtau && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark",
+    "downloadPtau": "./scripts/downloadPtau.sh",
+    "buildVerifyEpochKeySnark": "./scripts/buildVerifyEpochKeySnark.sh",
+    "buildUserStateTransitionSnark": "./scripts/buildUserStateTransitionSnark.sh",
+    "buildProveReputationSnark": "./scripts/buildProveReputationSnark.sh"
+  },
+  "repository": "https://github.com/Unirep/circuits.git",
+  "author": "vivianjeng <vivi432@yahoo.com.tw>",
+  "license": "MIT",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "circom": "^0.5.45",
+    "circomlib": "^0.5.3",
+    "maci-crypto": "^0.9.1",
+    "snarkjs": "^0.4.7",
+    "typescript": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.21",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.9.1",
+    "chai": "^4.2.0",
+    "ts-node": "^10.2.1"
+  }
+}
