@@ -8,7 +8,7 @@
     "buildVerifyEpochKeySnark": "./scripts/buildVerifyEpochKeySnark.sh",
     "buildUserStateTransitionSnark": "./scripts/buildUserStateTransitionSnark.sh",
     "buildProveReputationSnark": "./scripts/buildProveReputationSnark.sh",
-    "test": "mocha -r ts-node/register test/*.ts"
+    "test": "mocha -r ts-node/register test/*.ts --exit"
   },
   "repository": "https://github.com/Unirep/circuits.git",
   "author": "vivianjeng <vivi432@yahoo.com.tw>",

@@ -40,10 +40,6 @@ describe('Verify Epoch Key circuits', function () {
         epochKey = genEpochKey(id['identityNullifier'], currentEpoch, nonce, circuitEpochTreeDepth)
     })
 
-    after(function () {
-        process.exit(0)
-    })
-
     it('Valid epoch key should pass check', async () => {
         // Check if every valid nonce works
         for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {

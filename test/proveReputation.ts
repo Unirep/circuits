@@ -66,10 +66,6 @@ describe('Prove reputation from attester circuit', function () {
         epkNullifierProof = await nullifierTree.getMerkleProof(epkNullifier)
     })
 
-    after(function () {
-        process.exit(0)
-    })
-
     it('successfully prove a random generated reputation', async () => {
         const attesterIds = Object.keys(reputationRecords)
         const attesterId = attesterIds[Math.floor(Math.random() * NUM_ATTESTERS)]

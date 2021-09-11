@@ -116,10 +116,6 @@ describe('Process attestation circuit', function () {
         inputBlindedUserState = hash5([user['identityNullifier'], intermediateUserStateTreeRoots[0], epoch, nonce])
     })
 
-    after(function () {
-        process.exit(0)
-    })
-
     it('successfully process attestations', async () => {
         const circuitInputs = {
             epoch: epoch,

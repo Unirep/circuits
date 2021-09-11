@@ -56,10 +56,6 @@ describe('User State Transition circuits', function () {
             GSTreeRoot = GSTree.root
         })
 
-        after(function () {
-            process.exit(0)
-        })
-
         describe('Start process user state tree', () => {
             it('Valid user state update inputs should work', async () => {
                 const circuitInputs = {

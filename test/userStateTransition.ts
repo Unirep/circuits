@@ -148,10 +148,6 @@ describe('User State Transition circuits', function () {
             epochTreeRoot = epochTree.getRootHash()
         })
 
-        after(function () {
-            process.exit(0)
-        })
-
         describe('Process epoch keys', () => {
             it('Valid user state update inputs should work', async () => {
                 const circuitInputs = {
