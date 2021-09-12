@@ -4,7 +4,7 @@ import { compileAndLoadCircuit, executeCircuit, } from "../circuits/utils"
 import { genRandomSalt, hashLeftRight, SnarkBigInt, } from "@unirep/crypto"
 
 describe('Hash chain circuit', function () {
-    this.timeout(10000)
+    this.timeout(30000)
     let circuit
 
     const NUM_ELEMENT = 10

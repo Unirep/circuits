@@ -28,7 +28,7 @@ describe('Process attestation circuit', function () {
 
     before(async () => {
         const startCompileTime = Math.floor(new Date().getTime() / 1000)
-        const circuitPath = path.join(__dirname, '../circuits/test/processAttestations_test.circom')
+        const circuitPath = path.join(__dirname, '../build/processAttestations_main.circom')
         circuit = await compileAndLoadCircuit(circuitPath)
         const endCompileTime = Math.floor(new Date().getTime() / 1000)
         console.log(`Compile time: ${endCompileTime - startCompileTime} seconds`)

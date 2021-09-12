@@ -12,8 +12,6 @@ const circuitNullifierTreeDepth = 128;
 
 const maxReputationBudget = 10;
 
-const maxUsers = 2 ** circuitGlobalStateTreeDepth - 1;
-
 export {
     circuitGlobalStateTreeDepth,
     circuitUserStateTreeDepth,
@@ -21,6 +19,5 @@ export {
     circuitNullifierTreeDepth,
     numEpochKeyNoncePerEpoch,
     numAttestationsPerProof,
-    maxUsers,
     maxReputationBudget,
 }

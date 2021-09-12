@@ -19,7 +19,7 @@ describe('Verify Epoch Key circuits', function () {
     let nonce, currentEpoch, epochKey
 
     before(async () => {
-        const circuitPath = path.join(__dirname, '../circuits/test/verifyEpochKey_test.circom')
+        const circuitPath = path.join(__dirname, '../build/verifyEpochKey_main.circom')
         const startCompileTime = Math.floor(new Date().getTime() / 1000)
         circuit = await compileAndLoadCircuit(circuitPath)
         const endCompileTime = Math.floor(new Date().getTime() / 1000)

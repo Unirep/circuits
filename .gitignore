@@ -1,5 +1,5 @@
 .DS_Store
-powersOfTau28_hez_final_17.ptau
+*.ptau
 *.r1cs
 
 node_modules/

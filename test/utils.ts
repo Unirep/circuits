@@ -6,7 +6,7 @@ import { ethers } from 'ethers'
 import Keyv from "keyv"
 import { hash5, hashLeftRight, SparseMerkleTreeImpl, add0x, SnarkBigInt, hashOne } from '@unirep/crypto'
 import { IncrementalQuinTree } from 'maci-crypto'
-import { circuitEpochTreeDepth, circuitNullifierTreeDepth, circuitUserStateTreeDepth, } from '../config'
+import { circuitEpochTreeDepth, circuitUserStateTreeDepth, } from '../config'
 
 const SMT_ZERO_LEAF = hashLeftRight(BigInt(0), BigInt(0))
 const SMT_ONE_LEAF = hashLeftRight(BigInt(1), BigInt(0))
@@ -148,13 +148,6 @@ const genNewEpochTree = async (_epochTreeDepth: number = circuitEpochTreeDepth) 
     return genNewSMT(_epochTreeDepth, defaultOTSMTHash)
 }
 
-const genNewNullifierTree = async (_nullifierTreeDepth: number = circuitNullifierTreeDepth) => {
-    const nullifierTree = await genNewSMT(_nullifierTreeDepth, SMT_ZERO_LEAF)
-    // Reserve leaf 0
-    await nullifierTree.update(BigInt(0), SMT_ONE_LEAF)
-    return nullifierTree
-}
-
 const defaultUserStateLeaf = hash5([BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)])
 
 const computeEmptyUserStateRoot = (treeDepth: number): BigInt => {
@@ -184,11 +177,8 @@ const genEpochKey = (identityNullifier: SnarkBigInt, epoch: number, nonce: numbe
     return epochKeyModed
 }
 
-const genEpochKeyNullifier = (identityNullifier: SnarkBigInt, epoch: number, nonce: number, _nullifierTreeDepth: number = circuitNullifierTreeDepth): SnarkBigInt => {
-    let nullifier = hash5([EPOCH_KEY_NULLIFIER_DOMAIN, identityNullifier, BigInt(epoch), BigInt(nonce), BigInt(0)]).toString()
-    // Adjust epoch key size according to epoch tree depth
-    const nullifierModed = BigInt(nullifier) % BigInt(2 ** _nullifierTreeDepth)
-    return nullifierModed
+const genEpochKeyNullifier = (identityNullifier: SnarkBigInt, epoch: number, nonce: number): SnarkBigInt => {
+    return hash5([EPOCH_KEY_NULLIFIER_DOMAIN, identityNullifier, BigInt(epoch), BigInt(nonce), BigInt(0)])
 }
 
 export {
@@ -199,7 +189,6 @@ export {
     computeEmptyUserStateRoot,
     defaultUserStateLeaf,
     genNewEpochTree,
-    genNewNullifierTree,
     genNewUserStateTree,
     genNewSMT,
     toCompleteHexString,

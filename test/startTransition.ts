@@ -26,7 +26,7 @@ describe('User State Transition circuits', function () {
 
         before(async () => {
             const startCompileTime = Math.floor(new Date().getTime() / 1000)
-            const circuitPath = path.join(__dirname, '../circuits/test/startTransition_test.circom')
+            const circuitPath = path.join(__dirname, '../build/startTransition_main.circom')
             circuit = await compileAndLoadCircuit(circuitPath)
             const endCompileTime = Math.floor(new Date().getTime() / 1000)
             console.log(`Compile time: ${endCompileTime - startCompileTime} seconds`)

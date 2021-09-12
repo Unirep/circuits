@@ -7,7 +7,7 @@ include "./sparseMerkleTree.circom";
 include "./processAttestations.circom";
 include "./userExists.circom";
 
-template epochKeyExist(epoch_tree_depth) {
+template EpochKeyExist(epoch_tree_depth) {
     signal input identity_nullifier;
     signal input epoch;
     signal input nonce;
@@ -40,11 +40,7 @@ template epochKeyExist(epoch_tree_depth) {
     epoch_key <== epkModed;
 }
 
-template UserStateTransition(
-    GST_tree_depth, 
-    epoch_tree_depth, 
-    user_state_tree_depth, 
-    EPOCH_KEY_NONCE_PER_EPOCH) {
+template UserStateTransition( GST_tree_depth,  epoch_tree_depth,  user_state_tree_depth,  EPOCH_KEY_NONCE_PER_EPOCH) {
     signal input epoch;
 
     // User state tree
@@ -73,7 +69,7 @@ template UserStateTransition(
     signal output epoch_key_nullifier[EPOCH_KEY_NONCE_PER_EPOCH];
 
     /* 1. Check if user exists in the Global State Tree */
-    component user_exist = userExists(GST_tree_depth);
+    component user_exist = UserExists(GST_tree_depth);
     for (var i = 0; i< GST_tree_depth; i++) {
         user_exist.GST_path_index[i] <== GST_path_index[i];
         user_exist.GST_path_elements[i][0] <== GST_path_elements[i][0];
@@ -107,7 +103,7 @@ template UserStateTransition(
         seal_hash_chain_hasher[n].right <== hash_chain_results[n];
 
         // 2.3 Check if epoch key exists in epoch tree
-        epkExist[n] = epochKeyExist(epoch_tree_depth);
+        epkExist[n] = EpochKeyExist(epoch_tree_depth);
         epkExist[n].identity_nullifier <== identity_nullifier;
         epkExist[n].epoch <== epoch;
         epkExist[n].nonce <== n;

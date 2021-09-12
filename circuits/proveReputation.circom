@@ -7,7 +7,7 @@ include "./modulo.circom";
 include "./sparseMerkleTree.circom";
 include "./userExists.circom";
 
-template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_SCORE_BITS) {
+template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_SCORE_BITS) {
     signal input epoch;
     signal private input nonce;
 
@@ -20,9 +20,6 @@ template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_d
     signal private input GST_path_index[GST_tree_depth];
     signal private input GST_path_elements[GST_tree_depth][1];
     signal input GST_root;
-    // Nullifier tree
-    signal input nullifier_tree_root
-    signal private input nullifier_path_elements[nullifier_tree_depth][1];
     // Attester to prove reputation from
     signal input attester_id;
     // Attestation by the attester
@@ -54,7 +51,7 @@ template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_d
     /* End of check 1 */
 
     /* 2. Check if user exists in the Global State Tree */
-    component user_exist = userExists(GST_tree_depth);
+    component user_exist = UserExists(GST_tree_depth);
     for (var i = 0; i< GST_tree_depth; i++) {
         user_exist.GST_path_index[i] <== GST_path_index[i];
         user_exist.GST_path_elements[i][0] <== GST_path_elements[i][0];
@@ -85,44 +82,7 @@ template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_d
     reputation_membership_check.root <== user_tree_root;
     /* End of check 3 */
 
-
-    /* 4. Check it's latest epoch the user transition to */
-    // We check that nullifier of the epoch key is not seen before.
-    // 4.1.1 Compute nullifier of the epoch key
-    component epoch_key_nullifier_hasher = Hasher5();
-    epoch_key_nullifier_hasher.in[0] <== 1;  // 1 is the domain separator for epoch key nullifier
-    epoch_key_nullifier_hasher.in[1] <== identity_nullifier;
-    epoch_key_nullifier_hasher.in[2] <== epoch;
-    epoch_key_nullifier_hasher.in[3] <== nonce;
-    epoch_key_nullifier_hasher.in[4] <== 0;
-    // 4.1.2 Mod nullifier hash
-    // circom's best practices state that we should avoid using <-- unless
-    // we know what we are doing. But this is the only way to perform the
-    // modulo operation.
-    signal epk_nullifier_hash_moded;
-    component modEPKNullifier = ModuloTreeDepth(nullifier_tree_depth);
-    modEPKNullifier.dividend <== epoch_key_nullifier_hasher.hash;
-    epk_nullifier_hash_moded <== modEPKNullifier.remainder;
-
-    // 4.2 Verify non-membership of the nullifier in nullifier tree
-    // Unseen nullifier leaf should have value hashLeftRight(0, 0)
-    signal zero_leaf;
-    component zero_leaf_hasher = HashLeftRight();
-    zero_leaf_hasher.left <== 0;
-    zero_leaf_hasher.right <== 0;
-    zero_leaf <== zero_leaf_hasher.hash;
-
-    component epk_exists = SMTLeafExists(nullifier_tree_depth);
-    epk_exists.leaf_index <== epk_nullifier_hash_moded;
-    epk_exists.leaf <== zero_leaf;
-    epk_exists.root <== nullifier_tree_root;
-    for (var i = 0; i < nullifier_tree_depth; i++) {
-        epk_exists.path_elements[i][0] <== nullifier_path_elements[i][0];
-    }
-    /* End of check 4 */
-
-
-    /* 5. Check conditions on reputations */
+    /* 4. Check conditions on reputations */
     // if prove_pos_rep == TRUE then check GT
     // else return TRUE
     component if_check_pos_rep = Mux1();
@@ -161,9 +121,9 @@ template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_d
     if_check_diff_gt.c[1] <== rep_diff_get.out;
     if_check_diff_gt.s <== prove_rep_diff;
     if_check_diff_gt.out === 1;
-    /* End of check 5 */
+    /* End of check 4 */
 
-    /* 6. Check pre-image of graffiti */
+    /* 5. Check pre-image of graffiti */
     component if_check_graffiti = Mux1();
     component graffiti_hasher = HashLeftRight();
     graffiti_hasher.left <== graffiti_pre_image;
@@ -175,5 +135,5 @@ template proveReputation(GST_tree_depth, user_state_tree_depth, nullifier_tree_d
     if_check_graffiti.c[1] <== graffiti_eq.out;
     if_check_graffiti.s <== prove_graffiti;
     if_check_graffiti.out === 1;
-    /* End of check 6 */
+    /* End of check 5 */
  }

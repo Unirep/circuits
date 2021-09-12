@@ -2,8 +2,8 @@ import * as path from 'path'
 import { expect } from "chai"
 import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hashLeftRight, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, stringifyBigInts, IncrementalQuinTree, hashOne, } from "@unirep/crypto"
-import { genNewUserStateTree, Reputation, SMT_ONE_LEAF, genNewNullifierTree, genEpochKeyNullifier } from './utils'
-import { circuitGlobalStateTreeDepth, circuitNullifierTreeDepth, circuitUserStateTreeDepth } from "../config/"
+import { genNewUserStateTree, Reputation } from './utils'
+import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth } from "../config/"
 
 describe('Prove reputation from attester circuit', function () {
     this.timeout(300000)
@@ -17,8 +17,6 @@ describe('Prove reputation from attester circuit', function () {
 
     let GSTZERO_VALUE = 0, GSTree, GSTreeRoot, GSTreeProof
     let userStateTree: SparseMerkleTreeImpl, userStateRoot
-    let nullifierTree: SparseMerkleTreeImpl, nullifierTreeRoot, epkNullifierProof
-    let epkNullifier
     let hashedLeaf
 
     let reputationRecords = {}
@@ -27,7 +25,7 @@ describe('Prove reputation from attester circuit', function () {
 
     before(async () => {
         const startCompileTime = Math.floor(new Date().getTime() / 1000)
-        const circuitPath = path.join(__dirname, '../circuits/test/proveReputation_test.circom')
+        const circuitPath = path.join(__dirname, '../build/proveReputation_main.circom')
         circuit = await compileAndLoadCircuit(circuitPath)
         const endCompileTime = Math.floor(new Date().getTime() / 1000)
         console.log(`Compile time: ${endCompileTime - startCompileTime} seconds`)
@@ -57,13 +55,6 @@ describe('Prove reputation from attester circuit', function () {
         GSTree.insert(hashedLeaf)
         GSTreeProof = GSTree.genMerklePath(0)
         GSTreeRoot = GSTree.root
-
-        // Nullifier tree
-        nullifierTree = await genNewNullifierTree()
-        nullifierTreeRoot = nullifierTree.getRootHash()
-
-        epkNullifier = genEpochKeyNullifier(user['identityNullifier'], epoch, nonce, circuitNullifierTreeDepth)
-        epkNullifierProof = await nullifierTree.getMerkleProof(epkNullifier)
     })
 
     it('successfully prove a random generated reputation', async () => {
@@ -81,8 +72,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -122,8 +111,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -163,8 +150,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -204,8 +189,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -245,8 +228,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -289,8 +270,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -331,8 +310,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: wrongAttesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -375,8 +352,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -421,8 +396,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -460,8 +433,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -503,8 +474,6 @@ describe('Prove reputation from attester circuit', function () {
             GST_path_index: GSTreeProof.indices,
             GST_path_elements: GSTreeProof.pathElements,
             GST_root: GSTreeRoot,
-            nullifier_tree_root: nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
             attester_id: attesterId,
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
@@ -528,54 +497,6 @@ describe('Prove reputation from attester circuit', function () {
             expect(true).to.be.true
         } finally {
             if (!error) throw Error("Wrong graffiti pre-image should throw error")
-        }
-    })
-
-    it('prove reputation with epoch key nullifier seen before should fail', async () => {
-        const attesterIds = Object.keys(reputationRecords)
-        const attesterId = Number(attesterIds[Math.floor(Math.random() * NUM_ATTESTERS)])
-        const USTPathElements = await userStateTree.getMerkleProof(BigInt(attesterId))
-        // Create another nullifier tree that inserted the epoch key nullifier
-        const _nullifierTree = await genNewNullifierTree()
-        await _nullifierTree.update(BigInt(attesterId), SMT_ONE_LEAF)
-        const _nullifierTreeRoot = _nullifierTree.getRootHash()
-
-
-        const circuitInputs = {
-            epoch: epoch,
-            nonce: nonce,
-            identity_pk: user['keypair']['pubKey'],
-            identity_nullifier: user['identityNullifier'], 
-            identity_trapdoor: user['identityTrapdoor'],
-            user_tree_root: userStateRoot,
-            GST_path_index: GSTreeProof.indices,
-            GST_path_elements: GSTreeProof.pathElements,
-            GST_root: GSTreeRoot,
-            nullifier_tree_root: _nullifierTreeRoot,
-            nullifier_path_elements: epkNullifierProof,
-            attester_id: attesterId,
-            pos_rep: reputationRecords[attesterId]['posRep'],
-            neg_rep: reputationRecords[attesterId]['negRep'],
-            graffiti: reputationRecords[attesterId]['graffiti'],
-            UST_path_elements: USTPathElements,
-            prove_pos_rep: BigInt(Boolean(MIN_POS_REP)),
-            prove_neg_rep: BigInt(Boolean(MAX_NEG_REP)),
-            prove_rep_diff: BigInt(Boolean(reputationRecords[attesterId]['posRep'] - reputationRecords[attesterId]['negRep'])),
-            prove_graffiti: BigInt(Boolean(reputationRecords[attesterId]['graffitiPreImage'])),
-            min_rep_diff: BigInt(reputationRecords[attesterId]['posRep'] - reputationRecords[attesterId]['negRep']),
-            min_pos_rep: BigInt(MIN_POS_REP),
-            max_neg_rep: BigInt(MAX_NEG_REP),
-            graffiti_pre_image: reputationRecords[attesterId]['graffitiPreImage']
-        }
-
-        let error
-        try {
-            await executeCircuit(circuit, circuitInputs)
-        } catch (e) {
-            error = e
-            expect(true).to.be.true
-        } finally {
-            if (!error) throw Error("Seen epoch key nullifier should throw error")
         }
     })
 })

@@ -16,7 +16,8 @@ describe('User State Transition circuits', function () {
         let circuit
 
         const nonce = numEpochKeyNoncePerEpoch - 1
-        const epochKey: SnarkBigInt = genEpochKey(user['identityNullifier'], epoch, nonce, circuitEpochTreeDepth)
+        const testEpochTreeDepth = 32
+        const epochKey: SnarkBigInt = genEpochKey(user['identityNullifier'], epoch, nonce, testEpochTreeDepth)
 
         let epochTree: SparseMerkleTreeImpl, epochTreeRoot, epochTreePathElements
 
@@ -30,7 +31,7 @@ describe('User State Transition circuits', function () {
             console.log(`Compile time: ${endCompileTime - startCompileTime} seconds`)
 
             // Epoch tree
-            epochTree = await genNewEpochTree()
+            epochTree = await genNewEpochTree(testEpochTreeDepth)
 
             hashChainResult = genRandomSalt()
 
@@ -75,7 +76,7 @@ describe('User State Transition circuits', function () {
 
         before(async () => {
             const startCompileTime = Math.floor(new Date().getTime() / 1000)
-            const circuitPath = path.join(__dirname, '../circuits/test/userStateTransition_test.circom')
+            const circuitPath = path.join(__dirname, '../build/userStateTransition_main.circom')
             circuit = await compileAndLoadCircuit(circuitPath)
             const endCompileTime = Math.floor(new Date().getTime() / 1000)
             console.log(`Compile time: ${endCompileTime - startCompileTime} seconds`)
