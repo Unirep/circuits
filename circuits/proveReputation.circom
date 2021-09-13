@@ -7,10 +7,8 @@ include "./modulo.circom";
 include "./sparseMerkleTree.circom";
 include "./userExists.circom";
 
-template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_SCORE_BITS) {
+template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_BUDGET, MAX_REPUTATION_SCORE_BITS) {
     signal input epoch;
-    signal private input nonce;
-
     // Global state tree leaf: Identity & user state root
     signal private input identity_pk[2];
     signal private input identity_nullifier;
@@ -27,30 +25,29 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     signal private input neg_rep;
     signal private input graffiti;
     signal private input UST_path_elements[user_state_tree_depth][1];
-    // Adding flexibility to prove mp, mn or graffiti
-    signal input prove_pos_rep;
-    signal input prove_neg_rep;
-    signal input prove_rep_diff;
-    signal input prove_graffiti;
-    // Adding flexibility to prove differece of reputations
-    signal input min_rep_diff;
-    // Condition on repuations to prove
-    signal input min_pos_rep;
-    signal input max_neg_rep;
+    // Reputation nullifier
+    // signal input prove_rep_nullifiers;
+    signal input rep_nullifiers_amount;
+    signal private input selectors[MAX_REPUTATION_BUDGET];
+    signal private input rep_nonce[MAX_REPUTATION_BUDGET];
+    signal output rep_nullifiers[MAX_REPUTATION_BUDGET];
+    // Prove the minimum reputation
+    // signal input prove_min_rep;
+    signal input min_rep;
     // Graffiti
+    signal input prove_graffiti;
     signal input graffiti_pre_image;
 
+    /* 0. Validate inputs */
+    var sum_selectors = 0;
+    for (var i = 0; i < MAX_REPUTATION_BUDGET; i++) {
+        selectors[i] * (selectors[i] - 1) === 0;
+        sum_selectors = sum_selectors + selectors[i];
+    }
+    rep_nullifiers_amount === sum_selectors;
+    /* End of check 0 */
 
-    /* 1. Check nonce validity */
-    var bitsPerNonce = 8;
-
-    component nonce_lt = LessThan(bitsPerNonce);
-    nonce_lt.in[0] <== nonce;
-    nonce_lt.in[1] <== EPOCH_KEY_NONCE_PER_EPOCH;
-    nonce_lt.out === 1;
-    /* End of check 1 */
-
-    /* 2. Check if user exists in the Global State Tree */
+    /* 1. Check if user exists in the Global State Tree */
     component user_exist = UserExists(GST_tree_depth);
     for (var i = 0; i< GST_tree_depth; i++) {
         user_exist.GST_path_index[i] <== GST_path_index[i];
@@ -62,10 +59,10 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     user_exist.identity_nullifier <== identity_nullifier;
     user_exist.identity_trapdoor <== identity_trapdoor;
     user_exist.user_tree_root <== user_tree_root;
-    /* End of check 2 */
+    /* End of check 1 */
 
 
-    /* 3. Check if the reputation given by the attester is in the user state tree */
+    /* 2. Check if the reputation given by the attester is in the user state tree */
     component reputation_hasher = Hasher5();
     reputation_hasher.in[0] <== pos_rep;
     reputation_hasher.in[1] <== neg_rep;
@@ -80,47 +77,64 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
         reputation_membership_check.path_elements[i][0] <== UST_path_elements[i][0];
     }
     reputation_membership_check.root <== user_tree_root;
+    /* End of check 2 */
+
+    /* 3. Check nullifiers are valid */
+    // default nullifier value is hash5(0, 0, 0, 0, 0)
+    var default_nullifier_zero = 14655542659562014735865511769057053982292279840403315552050801315682099828156;
+
+    // 3.1 if proving reputation nullifiers > 0, check if rep_nonce is valid
+    component if_prove_rep_nullifiers = GreaterThan(MAX_REPUTATION_BUDGET);
+    if_prove_rep_nullifiers.in[0] <== rep_nullifiers_amount;
+    if_prove_rep_nullifiers.in[1] <== 0;
+
+    component if_check_nullifiers[MAX_REPUTATION_BUDGET];
+    component if_output_nullifiers[MAX_REPUTATION_BUDGET];
+    component rep_nullifier_hasher[MAX_REPUTATION_BUDGET];
+    component nonce_gt[MAX_REPUTATION_BUDGET];
+    for(var i = 0; i< MAX_REPUTATION_BUDGET; i++) {
+        // 3.2 verify is nonce is valid
+        // If user wants to generate rep nullifiers, check if pos_rep - neg_rep > rep_nonce
+        // Eg. if we have 10 rep score, we have 0-9 valid nonce
+        nonce_gt[i] = GreaterThan(MAX_REPUTATION_SCORE_BITS);
+        nonce_gt[i].in[0] <== pos_rep - neg_rep;
+        nonce_gt[i].in[1] <== rep_nonce[i];
+        if_check_nullifiers[i] = Mux1();
+        if_check_nullifiers[i].c[0] <== 1;
+        if_check_nullifiers[i].c[1] <== nonce_gt[i].out;
+        if_check_nullifiers[i].s <== if_prove_rep_nullifiers.out;
+        if_check_nullifiers[i].out === 1;
+
+        // 3.3 Use rep_nonce to compute all reputation nullifiers
+        if_output_nullifiers[i] = Mux1();
+        rep_nullifier_hasher[i] = Hasher5();
+        rep_nullifier_hasher[i].in[0] <== 2; // 2 is the domain separator for reputation nullifier
+        rep_nullifier_hasher[i].in[1] <== identity_nullifier;
+        rep_nullifier_hasher[i].in[2] <== epoch;
+        rep_nullifier_hasher[i].in[3] <== rep_nonce[i];
+        rep_nullifier_hasher[i].in[4] <== 0;
+        if_output_nullifiers[i].c[0] <== default_nullifier_zero;
+        if_output_nullifiers[i].c[1] <== rep_nullifier_hasher[i].hash;
+        if_output_nullifiers[i].s <== selectors[i] * if_prove_rep_nullifiers.out;
+        rep_nullifiers[i] <== if_output_nullifiers[i].out;
+    }
     /* End of check 3 */
 
-    /* 4. Check conditions on reputations */
-    // if prove_pos_rep == TRUE then check GT
-    // else return TRUE
-    component if_check_pos_rep = Mux1();
-    component pos_rep_get = GreaterEqThan(MAX_REPUTATION_SCORE_BITS);
-    pos_rep_get.in[0] <== pos_rep;
-    pos_rep_get.in[1] <== min_pos_rep;
-    if_check_pos_rep.c[0] <== 1;
-    if_check_pos_rep.c[1] <== pos_rep_get.out;
-    if_check_pos_rep.s <== prove_pos_rep;
-    if_check_pos_rep.out === 1;
+    /* 4. Check if user has reputation greater than min_rep */
+    // 4.1 if proving min_rep > 0, check if pos_rep - neg_rep >= min_rep
+    component if_prove_min_rep = GreaterThan(MAX_REPUTATION_BUDGET);
+    if_prove_min_rep.in[0] <== min_rep;
+    if_prove_min_rep.in[1] <== 0;
 
-    component if_check_neg_rep = Mux1();
-    component neg_rep_let = LessEqThan(MAX_REPUTATION_SCORE_BITS);
-    neg_rep_let.in[0] <== neg_rep;
-    neg_rep_let.in[1] <== max_neg_rep;
-    if_check_neg_rep.c[0] <== 1;
-    if_check_neg_rep.c[1] <== neg_rep_let.out;
-    if_check_neg_rep.s <== prove_neg_rep;
-    if_check_neg_rep.out === 1;
-
-    // only valid if pos_rep >= neg_rep
-    component if_check_pos_get = Mux1();
-    component if_check_diff_gt = Mux1();
-    component rep_diff_get_zero = GreaterEqThan(MAX_REPUTATION_SCORE_BITS);
-    rep_diff_get_zero.in[0] <== pos_rep;
-    rep_diff_get_zero.in[1] <== neg_rep;
-    if_check_pos_get.c[0] <== 1;
-    if_check_pos_get.c[1] <== rep_diff_get_zero.out;
-    if_check_pos_get.s <== prove_rep_diff;
-    if_check_pos_get.out === 1;
-    // // check if (pos_rep - neg_rep) >= min_rep_diff
-    component rep_diff_get = GreaterEqThan(MAX_REPUTATION_SCORE_BITS);
-    rep_diff_get.in[0] <== pos_rep - neg_rep;
-    rep_diff_get.in[1] <== min_rep_diff;
-    if_check_diff_gt.c[0] <== 1;
-    if_check_diff_gt.c[1] <== rep_diff_get.out;
-    if_check_diff_gt.s <== prove_rep_diff;
-    if_check_diff_gt.out === 1;
+    // 4.2 check if pos_rep - neg_rep >= 0 && pos_rep - neg_rep >= min_rep
+    component if_check_min_rep = Mux1();
+    component rep_get = GreaterEqThan(MAX_REPUTATION_SCORE_BITS);
+    rep_get.in[0] <== pos_rep - neg_rep;
+    rep_get.in[1] <== min_rep;
+    if_check_min_rep.c[0] <== 1;
+    if_check_min_rep.c[1] <== rep_get.out;
+    if_check_min_rep.s <== if_prove_min_rep.out;
+    if_check_min_rep.out === 1;
     /* End of check 4 */
 
     /* 5. Check pre-image of graffiti */

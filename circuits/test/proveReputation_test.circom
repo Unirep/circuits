@@ -1,3 +1,3 @@
 include "../proveReputation.circom"
 
-component main = ProveReputation(4, 4, 3, 252);
+component main = ProveReputation(4, 4, 3, 10, 252);

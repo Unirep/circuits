@@ -27,7 +27,7 @@ const main = async () => {
     circomPath = path.join(__dirname, `../build/proveReputation_main.circom`)
 
     // create .circom file
-    testCircuitContent = `include "../circuits/proveReputation.circom" \n\ncomponent main = ProveReputation(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${numEpochKeyNoncePerEpoch}, 252)`
+    testCircuitContent = `include "../circuits/proveReputation.circom" \n\ncomponent main = ProveReputation(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${numEpochKeyNoncePerEpoch}, ${maxReputationBudget}, 252)`
 
     try{
         fs.mkdirSync(dirPath, { recursive: true })
