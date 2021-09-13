@@ -4,8 +4,7 @@
 import assert from 'assert'
 import { ethers } from 'ethers'
 import Keyv from "keyv"
-import { hash5, hashLeftRight, SparseMerkleTreeImpl, add0x, SnarkBigInt, hashOne } from '@unirep/crypto'
-import { IncrementalQuinTree } from 'maci-crypto'
+import { hash5, hashLeftRight, SparseMerkleTreeImpl, add0x, SnarkBigInt, hashOne, IncrementalQuinTree } from '@unirep/crypto'
 import { circuitEpochTreeDepth, circuitUserStateTreeDepth, } from '../config'
 
 const SMT_ZERO_LEAF = hashLeftRight(BigInt(0), BigInt(0))

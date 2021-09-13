@@ -1,7 +1,7 @@
 import * as argparse from 'argparse' 
 import * as fs from 'fs'
 import * as path from 'path'
-import { stringifyBigInts } from 'maci-crypto';
+import { stringifyBigInts } from '@unirep/crypto';
 const compiler = require('circom').compiler
 const snarkjs = require('snarkjs')
 const fastFile = require("fastfile")
