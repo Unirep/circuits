@@ -1,14 +1,14 @@
 include "../node_modules/circomlib/circuits/comparators.circom";
 include "../node_modules/circomlib/circuits/mux1.circom";
 include "./hasherPoseidon.circom";
-include "./identityCommitment.circom";
-include "./incrementalMerkleTree.circom";
-include "./modulo.circom";
 include "./sparseMerkleTree.circom";
-include "./userExists.circom";
+include "./verifyEpochKey.circom";
 
-template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_BUDGET, MAX_REPUTATION_SCORE_BITS) {
+template ProveReputation(GST_tree_depth, user_state_tree_depth, epoch_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH, MAX_REPUTATION_BUDGET, MAX_REPUTATION_SCORE_BITS) {
     signal input epoch;
+    signal private input epoch_key_nonce;
+    signal input epoch_key;
+
     // Global state tree leaf: Identity & user state root
     signal private input identity_pk[2];
     signal private input identity_nullifier;
@@ -24,15 +24,14 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     signal private input pos_rep;
     signal private input neg_rep;
     signal private input graffiti;
+    signal private input sign_up;
     signal private input UST_path_elements[user_state_tree_depth][1];
     // Reputation nullifier
-    // signal input prove_rep_nullifiers;
     signal input rep_nullifiers_amount;
     signal private input selectors[MAX_REPUTATION_BUDGET];
     signal private input rep_nonce[MAX_REPUTATION_BUDGET];
     signal output rep_nullifiers[MAX_REPUTATION_BUDGET];
     // Prove the minimum reputation
-    // signal input prove_min_rep;
     signal input min_rep;
     // Graffiti
     signal input prove_graffiti;
@@ -47,18 +46,21 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     rep_nullifiers_amount === sum_selectors;
     /* End of check 0 */
 
-    /* 1. Check if user exists in the Global State Tree */
-    component user_exist = UserExists(GST_tree_depth);
+    /* 1. Check if user exists in the Global State Tree and verify epoch key */
+    component verify_epoch_key = VerifyEpochKey(GST_tree_depth, epoch_tree_depth, EPOCH_KEY_NONCE_PER_EPOCH);
     for (var i = 0; i< GST_tree_depth; i++) {
-        user_exist.GST_path_index[i] <== GST_path_index[i];
-        user_exist.GST_path_elements[i][0] <== GST_path_elements[i][0];
+        verify_epoch_key.GST_path_index[i] <== GST_path_index[i];
+        verify_epoch_key.GST_path_elements[i][0] <== GST_path_elements[i][0];
     }
-    user_exist.GST_root <== GST_root;
-    user_exist.identity_pk[0] <== identity_pk[0];
-    user_exist.identity_pk[1] <== identity_pk[1];
-    user_exist.identity_nullifier <== identity_nullifier;
-    user_exist.identity_trapdoor <== identity_trapdoor;
-    user_exist.user_tree_root <== user_tree_root;
+    verify_epoch_key.GST_root <== GST_root;
+    verify_epoch_key.identity_pk[0] <== identity_pk[0];
+    verify_epoch_key.identity_pk[1] <== identity_pk[1];
+    verify_epoch_key.identity_nullifier <== identity_nullifier;
+    verify_epoch_key.identity_trapdoor <== identity_trapdoor;
+    verify_epoch_key.user_tree_root <== user_tree_root;
+    verify_epoch_key.nonce <== epoch_key_nonce;
+    verify_epoch_key.epoch <== epoch;
+    verify_epoch_key.epoch_key <== epoch_key;
     /* End of check 1 */
 
 
@@ -67,7 +69,7 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     reputation_hasher.in[0] <== pos_rep;
     reputation_hasher.in[1] <== neg_rep;
     reputation_hasher.in[2] <== graffiti;
-    reputation_hasher.in[3] <== 0;
+    reputation_hasher.in[3] <== sign_up;
     reputation_hasher.in[4] <== 0;
 
     component reputation_membership_check = SMTLeafExists(user_state_tree_depth);
@@ -150,4 +152,4 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, EPOCH_KEY_NONCE_
     if_check_graffiti.s <== prove_graffiti;
     if_check_graffiti.out === 1;
     /* End of check 5 */
- }
+}

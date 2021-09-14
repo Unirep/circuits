@@ -16,6 +16,7 @@ interface IAttestation {
     posRep: BigInt;
     negRep: BigInt;
     graffiti: BigInt;
+    signUp: BigInt;
     hash(): BigInt;
 }
 
@@ -24,17 +25,20 @@ class Attestation implements IAttestation {
     public posRep: BigInt
     public negRep: BigInt
     public graffiti: BigInt
+    public signUp: BigInt
 
     constructor(
         _attesterId: BigInt,
         _posRep: BigInt,
         _negRep: BigInt,
         _graffiti: BigInt,
+        _signUp: BigInt,
     ) {
         this.attesterId = _attesterId
         this.posRep = _posRep
         this.negRep = _negRep
         this.graffiti = _graffiti
+        this.signUp = _signUp
     }
 
     public hash = (): BigInt => {
@@ -43,6 +47,7 @@ class Attestation implements IAttestation {
             this.posRep,
             this.negRep,
             this.graffiti,
+            this.signUp,
         ])
     }
 
@@ -53,6 +58,7 @@ class Attestation implements IAttestation {
                 posRep: this.posRep.toString(),
                 negRep: this.negRep.toString(),
                 graffiti: this.graffiti.toString(),
+                signUp: this.signUp.toString(),
             },
             null,
             space
@@ -71,31 +77,36 @@ class Reputation implements IReputation {
     public negRep: BigInt
     public graffiti: BigInt
     public graffitiPreImage: BigInt = BigInt(0)
+    public signUp: BigInt
 
     constructor(
         _posRep: BigInt,
         _negRep: BigInt,
         _graffiti: BigInt,
+        _signUp: BigInt,
     ) {
         this.posRep = _posRep
         this.negRep = _negRep
         this.graffiti = _graffiti
+        this.signUp = _signUp
     }
 
     public static default(): Reputation {
-        return new Reputation(BigInt(0), BigInt(0), BigInt(0))
+        return new Reputation(BigInt(0), BigInt(0), BigInt(0), BigInt(0))
     }
 
     public update = (
         _posRep: BigInt,
         _negRep: BigInt,
         _graffiti: BigInt,
+        _signUp: BigInt,
     ): Reputation => {
         this.posRep = BigInt(Number(this.posRep) + Number(_posRep))
         this.negRep = BigInt(Number(this.negRep) + Number(_negRep))
         if(_graffiti != BigInt(0)){
             this.graffiti = _graffiti
         }
+        this.signUp = _signUp
         return this
     }
 
@@ -109,7 +120,7 @@ class Reputation implements IReputation {
             this.posRep,
             this.negRep,
             this.graffiti,
-            BigInt(0),
+            this.signUp,
             BigInt(0),
         ])
     }
@@ -120,7 +131,8 @@ class Reputation implements IReputation {
                 posRep: this.posRep.toString(),
                 negRep: this.negRep.toString(),
                 graffiti: this.graffiti.toString(),
-                graffitiPreImage: this.graffitiPreImage.toString()
+                graffitiPreImage: this.graffitiPreImage.toString(),
+                signUp: this.signUp.toString()
             },
             null,
             space

@@ -23,6 +23,7 @@ describe('User State Transition circuits', function () {
         let hashedLeaf
         const zeroHashChain = BigInt(0)
         const nonce = BigInt(0)
+        const signUp = 1
 
         before(async () => {
             const startCompileTime = Math.floor(new Date().getTime() / 1000)
@@ -42,6 +43,7 @@ describe('User State Transition circuits', function () {
                         BigInt(Math.floor(Math.random() * 100)),
                         BigInt(Math.floor(Math.random() * 100)),
                         genRandomSalt(),
+                        BigInt(signUp)
                     )
                 }
                 await userStateTree.update(BigInt(attesterId), reputationRecords[attesterId.toString()].hash())

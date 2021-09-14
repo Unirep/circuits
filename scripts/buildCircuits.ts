@@ -27,7 +27,21 @@ const main = async () => {
     circomPath = path.join(__dirname, `../build/proveReputation_main.circom`)
 
     // create .circom file
-    testCircuitContent = `include "../circuits/proveReputation.circom" \n\ncomponent main = ProveReputation(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${numEpochKeyNoncePerEpoch}, ${maxReputationBudget}, 252)`
+    testCircuitContent = `include "../circuits/proveReputation.circom" \n\ncomponent main = ProveReputation(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch}, ${maxReputationBudget}, 252)`
+
+    try{
+        fs.mkdirSync(dirPath, { recursive: true })
+    } catch(e){
+        console.log('Cannot create folder ', e);
+    }
+    fs.writeFileSync(circomPath, testCircuitContent)
+
+    // proveUserSignUp circuit
+    dirPath = path.join(__dirname, '../build')
+    circomPath = path.join(__dirname, `../build/proveUserSignUp_main.circom`)
+
+    // create .circom file
+    testCircuitContent = `include "../circuits/proveUserSignUp.circom" \n\ncomponent main = ProveUserSignUp(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch})`
 
     try{
         fs.mkdirSync(dirPath, { recursive: true })

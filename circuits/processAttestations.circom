@@ -15,6 +15,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
     signal private input old_pos_reps[NUM_ATTESTATIONS];
     signal private input old_neg_reps[NUM_ATTESTATIONS];
     signal private input old_graffities[NUM_ATTESTATIONS];
+    signal private input old_sign_ups[NUM_ATTESTATIONS];
     signal private input path_elements[NUM_ATTESTATIONS][user_state_tree_depth][1];
 
     // Inputs of the atttestations
@@ -23,6 +24,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
     signal private input neg_reps[NUM_ATTESTATIONS];
     signal private input graffities[NUM_ATTESTATIONS];
     signal private input overwrite_graffities[NUM_ATTESTATIONS];
+    signal private input sign_ups[NUM_ATTESTATIONS];
 
     // Selector is used to determined if the attestation should be processed
     signal private input selectors[NUM_ATTESTATIONS];
@@ -94,7 +96,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
         attestation_hashers[i].in[1] <== pos_reps[i];
         attestation_hashers[i].in[2] <== neg_reps[i];
         attestation_hashers[i].in[3] <== graffities[i];
-        attestation_hashers[i].in[4] <== 0;
+        attestation_hashers[i].in[4] <== sign_ups[i];
         
         hash_chain_hasher.hashes[i] <== attestation_hashers[i].hash;
         hash_chain_hasher.selectors[i] <== selectors[i];
@@ -113,7 +115,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
         old_leaf_value_hasher[i].in[0] <== old_pos_reps[i];
         old_leaf_value_hasher[i].in[1] <== old_neg_reps[i];
         old_leaf_value_hasher[i].in[2] <== old_graffities[i];
-        old_leaf_value_hasher[i].in[3] <== 0;
+        old_leaf_value_hasher[i].in[3] <== old_sign_ups[i];
         old_leaf_value_hasher[i].in[4] <== 0;
 
         // Attestation record to be checked should have value hash5(pos, neg, graffiti)
@@ -142,7 +144,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
         new_leaf_value_hasher[i].in[0] <== pos_reps[i] + old_pos_reps[i];
         new_leaf_value_hasher[i].in[1] <== neg_reps[i] + old_neg_reps[i];
         new_leaf_value_hasher[i].in[2] <== overwrite_graffiti_muxer[i].out;
-        new_leaf_value_hasher[i].in[3] <== 0;
+        new_leaf_value_hasher[i].in[3] <== sign_ups[i];
         new_leaf_value_hasher[i].in[4] <== 0;
 
         // Attestation record to be checked should have value hash5(pos, neg, graffiti)

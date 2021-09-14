@@ -2,8 +2,8 @@ import * as path from 'path'
 import { expect } from "chai"
 import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hashLeftRight, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, stringifyBigInts, IncrementalQuinTree, hashOne, } from "@unirep/crypto"
-import { genNewUserStateTree, Reputation } from './utils'
-import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, maxReputationBudget } from "../config/"
+import { genEpochKey, genNewUserStateTree, Reputation } from './utils'
+import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, maxReputationBudget } from "../config"
 
 describe('Prove reputation from attester circuit', function () {
     this.timeout(300000)
@@ -13,6 +13,7 @@ describe('Prove reputation from attester circuit', function () {
     const epoch = 1
     const nonce = 1
     const user = genIdentity()
+    const epochKey = genEpochKey(user['identityNullifier'], epoch, nonce, circuitEpochTreeDepth)
     const NUM_ATTESTERS = 10
 
     let GSTZERO_VALUE = 0, GSTree, GSTreeRoot, GSTreeProof
@@ -28,6 +29,7 @@ describe('Prove reputation from attester circuit', function () {
     const nonceList: BigInt[] = []
     let minRep = MIN_POS_REP - MAX_NEG_REP
     const prove_graffiti = 1
+    const signUp = 1
 
     before(async () => {
         const startCompileTime = Math.floor(new Date().getTime() / 1000)
@@ -48,6 +50,7 @@ describe('Prove reputation from attester circuit', function () {
                 BigInt(Math.floor(Math.random() * 100) + MIN_POS_REP),
                 BigInt(Math.floor(Math.random() * MAX_NEG_REP)),
                 hashOne(graffitiPreImage),
+                BigInt(signUp)
             )
             reputationRecords[attesterId].addGraffitiPreImage(graffitiPreImage)
             await userStateTree.update(BigInt(attesterId), reputationRecords[attesterId].hash())
@@ -80,6 +83,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -91,6 +96,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -116,6 +122,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -127,6 +135,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -157,6 +166,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -168,6 +179,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: zeroRepNullifiersAmount,
             selectors: zeroSelector,
@@ -194,6 +206,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -205,6 +219,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -232,6 +247,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -243,6 +260,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -269,6 +287,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -280,6 +300,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -315,6 +336,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -326,6 +349,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -367,6 +391,7 @@ describe('Prove reputation from attester circuit', function () {
             BigInt(insufficientPosRep),
             BigInt(insufficientNegRep),
             hashOne(insufficientGraffitiPreImage),
+            BigInt(signUp)
         )
         await insufficientUserStateTree.update(BigInt(insufficientAttesterId), reputationRecords[insufficientAttesterId].hash())
         
@@ -382,6 +407,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs1 = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -393,6 +420,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[insufficientAttesterId]['posRep'],
             neg_rep: reputationRecords[insufficientAttesterId]['negRep'],
             graffiti: reputationRecords[insufficientAttesterId]['graffiti'],
+            sign_up: reputationRecords[insufficientAttesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -427,6 +455,8 @@ describe('Prove reputation from attester circuit', function () {
         }
         const circuitInputs2 = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -438,6 +468,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[insufficientAttesterId]['posRep'],
             neg_rep: reputationRecords[insufficientAttesterId]['negRep'],
             graffiti: reputationRecords[insufficientAttesterId]['graffiti'],
+            sign_up: reputationRecords[insufficientAttesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: zeroRepNullifiersAmount,
             selectors: zeroSelector,
@@ -468,6 +499,8 @@ describe('Prove reputation from attester circuit', function () {
         const zeroMinRep = 0
         const circuitInputs3 = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -479,6 +512,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[insufficientAttesterId]['posRep'],
             neg_rep: reputationRecords[insufficientAttesterId]['negRep'],
             graffiti: reputationRecords[insufficientAttesterId]['graffiti'],
+            sign_up: reputationRecords[insufficientAttesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: zeroRepNullifiersAmount,
             selectors: zeroSelector,
@@ -514,6 +548,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -525,6 +561,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -567,6 +604,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -578,6 +617,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: wrongRepNullifiersAmount,
             selectors: selectors,
@@ -615,6 +655,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -626,6 +668,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
@@ -661,6 +704,8 @@ describe('Prove reputation from attester circuit', function () {
 
         const circuitInputs = {
             epoch: epoch,
+            epoch_key_nonce: nonce,
+            epoch_key: epochKey,
             identity_pk: user['keypair']['pubKey'],
             identity_nullifier: user['identityNullifier'], 
             identity_trapdoor: user['identityTrapdoor'],
@@ -672,6 +717,7 @@ describe('Prove reputation from attester circuit', function () {
             pos_rep: reputationRecords[attesterId]['posRep'],
             neg_rep: reputationRecords[attesterId]['negRep'],
             graffiti: reputationRecords[attesterId]['graffiti'],
+            sign_up: reputationRecords[attesterId]['signUp'],
             UST_path_elements: USTPathElements,
             rep_nullifiers_amount: repNullifiersAmount,
             selectors: selectors,
