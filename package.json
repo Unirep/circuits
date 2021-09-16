@@ -1,14 +1,15 @@
 {
   "name": "@unirep/circuits",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "build/utils.js",
   "scripts": {
-    "build": "yarn downloadPtau && yarn buildCircuits && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark && tsc",
+    "build": "yarn downloadPtau && yarn buildCircuits && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark && yarn buildProveUserSignUpSnark && tsc",
     "downloadPtau": "./scripts/downloadPtau.sh",
     "buildCircuits": "npx ts-node scripts/buildCircuits.ts",
     "buildVerifyEpochKeySnark": "./scripts/buildVerifyEpochKeySnark.sh",
     "buildUserStateTransitionSnark": "./scripts/buildUserStateTransitionSnark.sh",
     "buildProveReputationSnark": "./scripts/buildProveReputationSnark.sh",
+    "buildProveUserSignUpSnark": "./scripts/buildProveUserSignUpSnark.sh",
     "test": "mocha -r ts-node/register test/*.ts --exit"
   },
   "repository": "https://github.com/Unirep/circuits.git",

@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 import { genIdentity, genIdentityCommitment } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 
 describe('(Semaphore) identity commitment', function () {
     this.timeout(200000)

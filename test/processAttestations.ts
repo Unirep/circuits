@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hash5, hashLeftRight, SnarkBigInt, genIdentity, SparseMerkleTreeImpl, stringifyBigInts } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genNewUserStateTree, Attestation, Reputation } from './utils'
 import { numAttestationsPerProof } from "../config/"
 
@@ -14,15 +14,16 @@ describe('Process attestation circuit', function () {
     const nonce = BigInt(0)
     const toNonce = BigInt(1)
     const user = genIdentity()
+    const signUp = 1
 
     let userStateTree: SparseMerkleTreeImpl
     let intermediateUserStateTreeRoots, userStateTreePathElements, noAttestationUserStateTreePathElements
-    let oldPosReps, oldNegReps, oldGraffities
+    let oldPosReps, oldNegReps, oldGraffities, oldSignUps
     let hashChainStarter = genRandomSalt()
     let inputBlindedUserState
 
     let reputationRecords: { [key: string]: Reputation } = {}
-    let attesterIds: BigInt[], posReps: BigInt[], negReps: BigInt[], graffities: SnarkBigInt[], overwriteGraffitis: BigInt[]
+    let attesterIds: BigInt[], posReps: BigInt[], negReps: BigInt[], graffities: SnarkBigInt[], signUps: BigInt[], overwriteGraffitis: BigInt[]
     let selectors: number[] = []
     let hashChainResult: SnarkBigInt
 
@@ -37,6 +38,7 @@ describe('Process attestation circuit', function () {
         posReps = []
         negReps = []
         graffities = []
+        signUps = []
         overwriteGraffitis = []
 
         // User state
@@ -47,6 +49,7 @@ describe('Process attestation circuit', function () {
         oldPosReps = []
         oldNegReps = []
         oldGraffities = []
+        oldSignUps = []
 
         // Bootstrap user state
         for (let i = 0; i < numAttestationsPerProof; i++) {
@@ -56,6 +59,7 @@ describe('Process attestation circuit', function () {
                     BigInt(Math.floor(Math.random() * 100)),
                     BigInt(Math.floor(Math.random() * 100)),
                     genRandomSalt(),
+                    BigInt(signUp)
                 )
             }
             await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
@@ -79,16 +83,19 @@ describe('Process attestation circuit', function () {
                 BigInt(Math.floor(Math.random() * 100)),
                 BigInt(Math.floor(Math.random() * 100)),
                 BigInt(0),
+                BigInt(signUp),
             )
             attesterIds.push(attesterId)
             posReps.push(attestation['posRep'])
             negReps.push(attestation['negRep'])
             graffities.push(attestation['graffiti'])
+            signUps.push(attestation['signUp'])
             overwriteGraffitis.push(BigInt(attestation['graffiti'] != BigInt(0)))
 
             oldPosReps.push(reputationRecords[attesterId.toString()]['posRep'])
             oldNegReps.push(reputationRecords[attesterId.toString()]['negRep'])
             oldGraffities.push(reputationRecords[attesterId.toString()]['graffiti'])
+            oldSignUps.push(reputationRecords[attesterId.toString()]['signUp'])
 
             if (selectors[i] == 1) {
                 // Get old reputation record proof
@@ -99,7 +106,8 @@ describe('Process attestation circuit', function () {
                 reputationRecords[attesterId.toString()].update(
                     attestation['posRep'],
                     attestation['negRep'],
-                    attestation['graffiti']
+                    attestation['graffiti'],
+                    attestation['signUp']
                 )
 
                 await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
@@ -126,12 +134,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -169,12 +179,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: noAttestationUserStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: zeroSelectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: zeroInputUserState,
@@ -196,11 +208,13 @@ describe('Process attestation circuit', function () {
         oldPosReps = []
         oldNegReps = []
         oldGraffities = []
+        oldSignUps = []
         attesterIds = []
         posReps = []
         negReps = []
         graffities = []
         overwriteGraffitis = []
+        signUps = []
         selectors = []
 
         intermediateUserStateTreeRoots = []
@@ -221,18 +235,21 @@ describe('Process attestation circuit', function () {
                 BigInt(Math.floor(Math.random() * 100)),
                 BigInt(Math.floor(Math.random() * 100)),
                 genRandomSalt(),
+                BigInt(signUp)
             )
             attesterIds.push(attesterId)
             posReps.push(attestation['posRep'])
             negReps.push(attestation['negRep'])
             graffities.push(attestation['graffiti'])
             overwriteGraffitis.push(BigInt(attestation['graffiti'] != BigInt(0)))
+            signUps.push(attestation['signUp'])
             
             if (selectors[i] == 1) {
                 // Get old reputation record
                 oldPosReps.push(reputationRecords[attesterId.toString()].posRep)
                 oldNegReps.push(reputationRecords[attesterId.toString()].negRep)
                 oldGraffities.push(reputationRecords[attesterId.toString()].graffiti)
+                oldSignUps.push(reputationRecords[attesterId.toString()].signUp)
 
                 // Get old reputation record proof
                 const oldReputationRecordProof = await userStateTree.getMerkleProof(attesterId)
@@ -242,7 +259,8 @@ describe('Process attestation circuit', function () {
                 reputationRecords[attesterId.toString()].update(
                     attestation['posRep'],
                     attestation['negRep'],
-                    attestation['graffiti']
+                    attestation['graffiti'],
+                    attestation['signUp']
                 )
 
                 await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
@@ -253,6 +271,7 @@ describe('Process attestation circuit', function () {
                 oldPosReps.push(BigInt(0))
                 oldNegReps.push(BigInt(0))
                 oldGraffities.push(BigInt(0))
+                oldSignUps.push(BigInt(0))
 
                 const leafZeroPathElements = await userStateTree.getMerkleProof(BigInt(0))
                 userStateTreePathElements.push(leafZeroPathElements)
@@ -270,12 +289,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -297,11 +318,13 @@ describe('Process attestation circuit', function () {
         oldPosReps = []
         oldNegReps = []
         oldGraffities = []
+        oldSignUps = []
         attesterIds = []
         posReps = []
         negReps = []
         graffities = []
         overwriteGraffitis = []
+        signUps = []
         selectors = []
 
         intermediateUserStateTreeRoots = []
@@ -322,18 +345,21 @@ describe('Process attestation circuit', function () {
                 BigInt(Math.floor(Math.random() * 100)),
                 BigInt(Math.floor(Math.random() * 100)),
                 genRandomSalt(),
+                BigInt(signUp)
             )
             attesterIds.push(attesterId)
             posReps.push(attestation['posRep'])
             negReps.push(attestation['negRep'])
             graffities.push(attestation['graffiti'])
             overwriteGraffitis.push(BigInt(attestation['graffiti'] != BigInt(0)))
+            signUps.push(attestation['signUp'])
             
             if (selectors[i] == 1) {
                 // Get old reputation record
                 oldPosReps.push(reputationRecords[attesterId.toString()].posRep)
                 oldNegReps.push(reputationRecords[attesterId.toString()].negRep)
                 oldGraffities.push(reputationRecords[attesterId.toString()].graffiti)
+                oldSignUps.push(reputationRecords[attesterId.toString()].signUp)
 
                 // Get old reputation record proof
                 const oldReputationRecordProof = await userStateTree.getMerkleProof(attesterId)
@@ -343,7 +369,8 @@ describe('Process attestation circuit', function () {
                 reputationRecords[attesterId.toString()].update(
                     attestation['posRep'],
                     attestation['negRep'],
-                    attestation['graffiti']
+                    attestation['graffiti'],
+                    attestation['signUp']
                 )
 
                 await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
@@ -354,6 +381,7 @@ describe('Process attestation circuit', function () {
                 oldPosReps.push(BigInt(0))
                 oldNegReps.push(BigInt(0))
                 oldGraffities.push(BigInt(0))
+                oldSignUps.push(BigInt(0))
 
                 const leafZeroPathElements = await userStateTree.getMerkleProof(BigInt(0))
                 userStateTreePathElements.push(leafZeroPathElements)
@@ -371,12 +399,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -398,11 +428,13 @@ describe('Process attestation circuit', function () {
         oldPosReps = []
         oldNegReps = []
         oldGraffities = []
+        oldSignUps = []
         attesterIds = []
         posReps = []
         negReps = []
         graffities = []
         overwriteGraffitis = []
+        signUps = []
         selectors = []
 
         intermediateUserStateTreeRoots = []
@@ -423,18 +455,21 @@ describe('Process attestation circuit', function () {
                 BigInt(Math.floor(Math.random() * 100)),
                 BigInt(Math.floor(Math.random() * 100)),
                 genRandomSalt(),
+                BigInt(signUp)
             )
             attesterIds.push(attesterId)
             posReps.push(attestation['posRep'])
             negReps.push(attestation['negRep'])
             graffities.push(attestation['graffiti'])
             overwriteGraffitis.push(BigInt(attestation['graffiti'] != BigInt(0)))
+            signUps.push(attestation['signUp'])
             
             if (selectors[i] == 1) {
                 // Get old reputation record
                 oldPosReps.push(reputationRecords[attesterId.toString()].posRep)
                 oldNegReps.push(reputationRecords[attesterId.toString()].negRep)
                 oldGraffities.push(reputationRecords[attesterId.toString()].graffiti)
+                oldSignUps.push(reputationRecords[attesterId.toString()].signUp)
 
                 // Get old reputation record proof
                 const oldReputationRecordProof = await userStateTree.getMerkleProof(attesterId)
@@ -444,7 +479,8 @@ describe('Process attestation circuit', function () {
                 reputationRecords[attesterId.toString()].update(
                     attestation['posRep'],
                     attestation['negRep'],
-                    attestation['graffiti']
+                    attestation['graffiti'],
+                    attestation['signUp']
                 )
 
                 await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
@@ -455,6 +491,7 @@ describe('Process attestation circuit', function () {
                 oldPosReps.push(BigInt(0))
                 oldNegReps.push(BigInt(0))
                 oldGraffities.push(BigInt(0))
+                oldSignUps.push(BigInt(0))
                 
                 const leafZeroPathElements = await userStateTree.getMerkleProof(BigInt(0))
                 userStateTreePathElements.push(leafZeroPathElements)
@@ -472,12 +509,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -510,12 +549,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: wrongOldPosReps,
             old_neg_reps: wrongOldNegReps,
             old_graffities: wrongOldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -545,12 +586,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -579,12 +622,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: attesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,
@@ -614,12 +659,14 @@ describe('Process attestation circuit', function () {
             old_pos_reps: oldPosReps,
             old_neg_reps: oldNegReps,
             old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
             path_elements: userStateTreePathElements,
             attester_ids: wrongAttesterIds,
             pos_reps: posReps,
             neg_reps: negReps,
             graffities: graffities,
             overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
             selectors: selectors,
             hash_chain_starter: hashChainStarter,
             input_blinded_user_state: inputBlindedUserState,

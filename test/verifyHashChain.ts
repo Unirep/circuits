@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, } from "../circuits/utils"
 import { genRandomSalt, hashLeftRight, SnarkBigInt, } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, } from "../circuits/utils"
 
 describe('Hash chain circuit', function () {
     this.timeout(30000)

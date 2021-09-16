@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hash5, hashLeftRight, stringifyBigInts, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, IncrementalQuinTree, SnarkBigInt } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genNewUserStateTree, genNewEpochTree, Reputation, genEpochKey } from './utils'
 import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, numEpochKeyNoncePerEpoch } from "../config/"
 
@@ -69,6 +69,7 @@ describe('User State Transition circuits', function () {
         let intermediateUserStateTreeRoots
         let blindedUserState: BigInt[]
         let blindedHashChain: BigInt[]
+        const signUp = 1
 
         let reputationRecords = {}
         let hashChainResults: BigInt[] = []
@@ -96,6 +97,7 @@ describe('User State Transition circuits', function () {
                         BigInt(Math.floor(Math.random() * 100)),
                         BigInt(Math.floor(Math.random() * 100)),
                         genRandomSalt(),
+                        BigInt(signUp)
                     )
                 }
                 await userStateTree.update(BigInt(attesterId), reputationRecords[attesterId.toString()].hash())

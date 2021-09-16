@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 import { stringifyBigInts, genRandomSalt, hashLeftRight, hash5, } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 
 describe('Poseidon hash circuits', function (){
     this.timeout(100000)
