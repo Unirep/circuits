@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hash5, hashLeftRight, SnarkBigInt, genIdentity, SparseMerkleTreeImpl, stringifyBigInts } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genNewUserStateTree, Attestation, Reputation } from './utils'
 import { numAttestationsPerProof } from "../config/"
 

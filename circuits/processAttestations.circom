@@ -165,8 +165,8 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
         /* End of 3. process attestations and update user state tree */
     }
 
-    /* 5. Compute blinded public output */
-    // 5.1 blinded_user_state = hash5(identity, UST_root, epoch, epoch_key_nonce, 0)
+    /* 4. Compute blinded public output */
+    // 4.1 blinded_user_state = hash5(identity, UST_root, epoch, epoch_key_nonce, 0)
     component blinded_user_state_hasher = Hasher5();
     blinded_user_state_hasher.in[0] <== identity_nullifier;
     blinded_user_state_hasher.in[1] <== intermediate_user_state_tree_roots[NUM_ATTESTATIONS];
@@ -175,7 +175,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
     blinded_user_state_hasher.in[4] <== 0;
     blinded_user_state <== blinded_user_state_hasher.hash;
 
-    // 5.2 blinded_hash_chain_result = hash5(identity, hash_chain_result, epoch, epoch_key_nonce, 0)
+    // 4.2 blinded_hash_chain_result = hash5(identity, hash_chain_result, epoch, epoch_key_nonce, 0)
     component blinded_hash_chain_result_hasher = Hasher5();
     blinded_hash_chain_result_hasher.in[0] <== identity_nullifier;
     blinded_hash_chain_result_hasher.in[1] <== hash_chain_hasher.result;
@@ -183,5 +183,5 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
     blinded_hash_chain_result_hasher.in[3] <== to_nonce;
     blinded_hash_chain_result_hasher.in[4] <== 0;
     blinded_hash_chain_result <== blinded_hash_chain_result_hasher.hash;
-    /* End of 5. Compute blinded public output */
+    /* End of 4. Compute blinded public output */
 }

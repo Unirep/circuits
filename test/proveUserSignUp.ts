@@ -1,9 +1,9 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genRandomSalt, hashLeftRight, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, stringifyBigInts, IncrementalQuinTree, hashOne, } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { genEpochKey, genNewUserStateTree, Reputation } from './utils'
-import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, circuitUserStateTreeDepth } from "../config"
+import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth } from "../config"
 
 describe('Prove user has signed up circuit', function () {
     this.timeout(300000)

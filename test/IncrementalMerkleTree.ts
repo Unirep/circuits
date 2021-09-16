@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 import { genRandomSalt, IncrementalQuinTree, hashOne, SnarkBigInt, } from "@unirep/crypto"
+import { compileAndLoadCircuit, executeCircuit, getSignalByName, } from "../circuits/utils"
 
 const LEVELS = 4
 const ZERO_VALUE = 0
