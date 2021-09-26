@@ -82,8 +82,8 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, epoch_tree_depth
     /* End of check 2 */
 
     /* 3. Check nullifiers are valid */
-    // default nullifier value is hash5(0, 0, 0, 0, 0)
-    var default_nullifier_zero = 14655542659562014735865511769057053982292279840403315552050801315682099828156;
+    // default nullifier value is 0
+    var default_nullifier_zero = 0;
 
     // 3.1 if proving reputation nullifiers > 0, check if rep_nonce is valid
     component if_prove_rep_nullifiers = GreaterThan(MAX_REPUTATION_BUDGET);

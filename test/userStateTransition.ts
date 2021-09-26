@@ -125,8 +125,10 @@ describe('User State Transition circuits', function () {
                 const hashChainResult = genRandomSalt()
 
                 // Blinded user state result
-                intermediateUserStateTreeRoots.push(intermediateUserStateTreeRoot)
-                blindedUserState.push(hash5([user['identityNullifier'], intermediateUserStateTreeRoot, BigInt(epoch), BigInt(nonce)]))
+                if(nonce == 0 || nonce == EPK_NONCE_PER_EPOCH - 1){
+                    intermediateUserStateTreeRoots.push(intermediateUserStateTreeRoot)
+                    blindedUserState.push(hash5([user['identityNullifier'], intermediateUserStateTreeRoot, BigInt(epoch), BigInt(nonce)]))
+                }
 
                 // Blinded hash chain result
                 hashChainResults.push(hashChainResult)
@@ -140,7 +142,7 @@ describe('User State Transition circuits', function () {
             }
 
             // Compute new GST Leaf
-            const latestUSTRoot = intermediateUserStateTreeRoots[EPK_NONCE_PER_EPOCH]
+            const latestUSTRoot = intermediateUserStateTreeRoots[2]
             newGSTLeaf = hashLeftRight(commitment, latestUSTRoot)
 
             for (let nonce = 0; nonce < EPK_NONCE_PER_EPOCH; nonce++) {
@@ -151,7 +153,7 @@ describe('User State Transition circuits', function () {
             epochTreeRoot = epochTree.getRootHash()
         })
 
-        describe('Process epoch keys', () => {
+        describe('Process user state transition proof', () => {
             it('Valid user state update inputs should work', async () => {
                 const circuitInputs = {
                     epoch: epoch,
