@@ -47,7 +47,9 @@ template UserStateTransition( GST_tree_depth,  epoch_tree_depth,  user_state_tre
     // First intermediate root is the user state tree root before processing
     // Second intermediate root is the new user state tree root after processing
     signal input blinded_user_state[2];
-    signal private input intermediate_user_state_tree_roots[3];
+    signal private input intermediate_user_state_tree_roots[2];
+    signal private input start_epoch_key_nonce;
+    signal private input end_epoch_key_nonce;
 
     // Global state tree leaf: Identity & user state root
     signal private input identity_pk[2];
@@ -117,20 +119,20 @@ template UserStateTransition( GST_tree_depth,  epoch_tree_depth,  user_state_tre
 
     /* 3. Check if blinded user state matches */
     component blinded_user_state_hasher[2];
-    // 3.1 Check blinded user state when nonce = 0
+    // 3.1 Check blinded user state when nonce = start_epoch_key_nonce
     blinded_user_state_hasher[0] = Hasher5();
     blinded_user_state_hasher[0].in[0] <== identity_nullifier;
-    blinded_user_state_hasher[0].in[1] <== intermediate_user_state_tree_roots[1];
+    blinded_user_state_hasher[0].in[1] <== intermediate_user_state_tree_roots[0];
     blinded_user_state_hasher[0].in[2] <== epoch;
-    blinded_user_state_hasher[0].in[3] <== 0;
+    blinded_user_state_hasher[0].in[3] <== start_epoch_key_nonce;
     blinded_user_state_hasher[0].in[4] <== 0;
     blinded_user_state[0] === blinded_user_state_hasher[0].hash;
-    // 3.2 Check blinded user state when nonce = EPOCH_KEY_NONCE_PER_EPOCH - 1
+    // 3.2 Check blinded user state when nonce = latest_epoch_key_nonce
     blinded_user_state_hasher[1] = Hasher5();
     blinded_user_state_hasher[1].in[0] <== identity_nullifier;
-    blinded_user_state_hasher[1].in[1] <== intermediate_user_state_tree_roots[2];
+    blinded_user_state_hasher[1].in[1] <== intermediate_user_state_tree_roots[1];
     blinded_user_state_hasher[1].in[2] <== epoch;
-    blinded_user_state_hasher[1].in[3] <== EPOCH_KEY_NONCE_PER_EPOCH - 1;
+    blinded_user_state_hasher[1].in[3] <== end_epoch_key_nonce;
     blinded_user_state_hasher[1].in[4] <== 0;
     blinded_user_state[1] === blinded_user_state_hasher[1].hash;
     /* End of 3. Check if blinded user state matches*/
@@ -152,7 +154,7 @@ template UserStateTransition( GST_tree_depth,  epoch_tree_depth,  user_state_tre
     component new_leaf_hasher = HashLeftRight();
     new_leaf_hasher.left <== user_exist.out;
     // Last intermediate root is the new user state tree root
-    new_leaf_hasher.right <== intermediate_user_state_tree_roots[2];
+    new_leaf_hasher.right <== intermediate_user_state_tree_roots[1];
     new_GST_leaf <== new_leaf_hasher.hash;
     /* End of 4. compute and output nullifiers and new GST leaf */
 }
