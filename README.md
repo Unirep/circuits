@@ -48,5 +48,5 @@ yarn test
 1. Check if user exists in the Global State Tree and verify epoch key
 2. Check if the reputation given by the attester is in the user state tree
 3. Check if user has signed up in the attester's application
-> Fixed epoch key nonce: one user is only allowed to get attester's airdrop once per epoch
+> Fixed epoch key nonce: one user is only allowed to get attester's airdrop once per epoch 
 > Sign up flag cannot be overwritten. Once a user has signed up before, he can always prove that he has signed up.
