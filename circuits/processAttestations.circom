@@ -1,5 +1,6 @@
 include "../node_modules/circomlib/circuits/comparators.circom";
 include "../node_modules/circomlib/circuits/mux1.circom";
+include "../node_modules/circomlib/circuits/gates.circom";
 include "./hasherPoseidon.circom";
 include "./sparseMerkleTree.circom";
 include "./verifyHashChain.circom";
@@ -88,6 +89,7 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
     input_blinded_user_state === input_blinded_user_state_hasher.hash;
     /* End of 1. Verify blinded input user state*/
 
+    component sign_up_or_gate[NUM_ATTESTATIONS];
     for (var i = 0; i < NUM_ATTESTATIONS; i++) {
         /* 2. Verify attestation hash chain */
         // 2.1 Compute hash of the attestation and verify the hash chain of these hashes
@@ -140,11 +142,14 @@ template ProcessAttestations(user_state_tree_depth, NUM_ATTESTATIONS, EPOCH_KEY_
         overwrite_graffiti_muxer[i].c[0] <== old_graffities[i];
         overwrite_graffiti_muxer[i].c[1] <== graffities[i];
         overwrite_graffiti_muxer[i].s <== overwrite_graffities[i];
+        sign_up_or_gate[i] = OR();
+        sign_up_or_gate[i].a <== sign_ups[i];
+        sign_up_or_gate[i].b <== old_sign_ups[i];
         new_leaf_value_hasher[i] = Hasher5();
         new_leaf_value_hasher[i].in[0] <== pos_reps[i] + old_pos_reps[i];
         new_leaf_value_hasher[i].in[1] <== neg_reps[i] + old_neg_reps[i];
         new_leaf_value_hasher[i].in[2] <== overwrite_graffiti_muxer[i].out;
-        new_leaf_value_hasher[i].in[3] <== sign_ups[i];
+        new_leaf_value_hasher[i].in[3] <== sign_up_or_gate[i].out;
         new_leaf_value_hasher[i].in[4] <== 0;
 
         // Attestation record to be checked should have value hash5(pos, neg, graffiti)
