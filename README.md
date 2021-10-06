@@ -1,4 +1,4 @@
-# Unirep circuits v1.0.1
+# Unirep circuits v1.0.2
 
 Circuits used in UniRep
 
@@ -42,10 +42,11 @@ yarn test
 3. Check reputation nullifiers are valid
 4. Check if user has reputation greater than min_rep
 5. Check pre-image of graffiti
-> Hide epoch key nonce: spend reputation will not reveal user uses which epoch key
+> Hide epoch key nonce: spend reputation will not reveal a user uses which epoch key
 
 ### `proveUserSignUp`
 1. Check if user exists in the Global State Tree and verify epoch key
 2. Check if the reputation given by the attester is in the user state tree
-3. Check if user has signed up in the attester's app
-> Fix epoch key nonce: one user is only allowed to get attester's airdrop once
+3. Check if user has signed up in the attester's application
+> Fixed epoch key nonce: one user is only allowed to get attester's airdrop once per epoch
+> Sign up flag cannot be overwritten. Once a user has signed up before, he can always prove that he has signed up.
