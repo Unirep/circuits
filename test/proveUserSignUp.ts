@@ -97,49 +97,6 @@ describe('Prove user has signed up circuit', function () {
         expect(isValid).to.be.true
     })
 
-    it('already signed up leaf cannot be overwrite', async () => {
-        // const graffitiPreImage = genRandomSalt()
-        const newPosRep = 1
-        const noSignUpFlag = 0
-        reputationRecords[signedUpAttesterId].update(BigInt(newPosRep), BigInt(0), BigInt(0), BigInt(0), BigInt(noSignUpFlag))
-        await userStateTree.update(BigInt(signedUpAttesterId), reputationRecords[signedUpAttesterId].hash())
-        const attesterId = signedUpAttesterId
-        const USTPathElements = await userStateTree.getMerkleProof(BigInt(attesterId))
-        userStateRoot = userStateTree.getRootHash()
-        // Update global state tree
-        GSTree = new IncrementalQuinTree(circuitGlobalStateTreeDepth, GSTZERO_VALUE, 2)
-        const commitment = genIdentityCommitment(user)
-        hashedLeaf = hashLeftRight(commitment, userStateRoot)
-        GSTree.insert(hashedLeaf)
-        GSTreeProof = GSTree.genMerklePath(0)
-        GSTreeRoot = GSTree.root
-
-        const circuitInputs = {
-            epoch: epoch,
-            epoch_key: epochKey,
-            identity_pk: user['keypair']['pubKey'],
-            identity_nullifier: user['identityNullifier'], 
-            identity_trapdoor: user['identityTrapdoor'],
-            user_tree_root: userStateRoot,
-            GST_path_index: GSTreeProof.indices,
-            GST_path_elements: GSTreeProof.pathElements,
-            GST_root: GSTreeRoot,
-            attester_id: attesterId,
-            pos_rep: reputationRecords[attesterId]['posRep'],
-            neg_rep: reputationRecords[attesterId]['negRep'],
-            graffiti: reputationRecords[attesterId]['graffiti'],
-            sign_up: reputationRecords[attesterId]['signUp'],
-            UST_path_elements: USTPathElements,
-        }
-        const witness = await executeCircuit(circuit, circuitInputs)
-        const startTime = new Date().getTime()
-        const results = await genProofAndPublicSignals('proveUserSignUp',stringifyBigInts(circuitInputs))
-        const endTime = new Date().getTime()
-        console.log(`Gen Proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
-        const isValid = await verifyProof('proveUserSignUp',results['proof'], results['publicSignals'])
-        expect(isValid).to.be.true
-    })
-
     it('user does not sign up should fail', async () => {
         const attesterId = nonSignedUpAttesterId
         const USTPathElements = await userStateTree.getMerkleProof(BigInt(attesterId))

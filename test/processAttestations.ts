@@ -525,6 +525,118 @@ describe('Process attestation circuit', function () {
         const outputUserState = getSignalByName(circuit, witness, 'main.blinded_user_state')
         const expectedUserState = hash5([user['identityNullifier'], intermediateUserStateTreeRoots[numAttestationsPerProof], epoch, toNonce])
         expect(outputUserState).to.equal(expectedUserState)
+        inputBlindedUserState = outputUserState
+
+        const outputHashChainResult = getSignalByName(circuit, witness, 'main.blinded_hash_chain_result')
+        const expectedHashChainResult = hash5([user['identityNullifier'], hashChainResult, epoch, toNonce])
+        expect(outputHashChainResult).to.equal(expectedHashChainResult)
+    })
+
+    it('Sign up flag should not be overwritten', async () => {
+        hashChainStarter = hashChainResult
+
+        oldPosReps = []
+        oldNegReps = []
+        oldGraffities = []
+        oldSignUps = []
+        attesterIds = []
+        posReps = []
+        negReps = []
+        graffities = []
+        overwriteGraffitis = []
+        signUps = []
+        selectors = []
+
+        intermediateUserStateTreeRoots = []
+        userStateTreePathElements = []
+        intermediateUserStateTreeRoots.push(userStateTree.getRootHash())
+
+        const notSignUp = 0
+
+        // Ensure as least one of the selectors is true
+        const selTrue = Math.floor(Math.random() * numAttestationsPerProof)
+        for (let i = 0; i < numAttestationsPerProof; i++) {
+            if (i == selTrue) selectors.push(1)
+            else selectors.push(Math.floor(Math.random() * 2))
+        }
+
+        for (let i = 0; i < numAttestationsPerProof; i++) {
+            const attesterId = BigInt(i + 1)
+            const attestation: Attestation = new Attestation(
+                attesterId,
+                BigInt(Math.floor(Math.random() * 100)),
+                BigInt(Math.floor(Math.random() * 100)),
+                genRandomSalt(),
+                BigInt(notSignUp)
+            )
+            attesterIds.push(attesterId)
+            posReps.push(attestation['posRep'])
+            negReps.push(attestation['negRep'])
+            graffities.push(attestation['graffiti'])
+            overwriteGraffitis.push(BigInt(attestation['graffiti'] != BigInt(0)))
+            signUps.push(attestation['signUp'])
+            
+            if (selectors[i] == 1) {
+                // Get old reputation record
+                oldPosReps.push(reputationRecords[attesterId.toString()].posRep)
+                oldNegReps.push(reputationRecords[attesterId.toString()].negRep)
+                oldGraffities.push(reputationRecords[attesterId.toString()].graffiti)
+                oldSignUps.push(reputationRecords[attesterId.toString()].signUp)
+
+                // Get old reputation record proof
+                const oldReputationRecordProof = await userStateTree.getMerkleProof(attesterId)
+                userStateTreePathElements.push(oldReputationRecordProof)
+
+                // Update reputation record
+                reputationRecords[attesterId.toString()].update(
+                    attestation['posRep'],
+                    attestation['negRep'],
+                    attestation['graffiti'],
+                    attestation['signUp']
+                )
+
+                await userStateTree.update(attesterId, reputationRecords[attesterId.toString()].hash())
+
+                const attestation_hash = attestation.hash()
+                hashChainResult = hashLeftRight(attestation_hash, hashChainResult)
+            } else {
+                oldPosReps.push(BigInt(0))
+                oldNegReps.push(BigInt(0))
+                oldGraffities.push(BigInt(0))
+                oldSignUps.push(BigInt(0))
+                
+                const leafZeroPathElements = await userStateTree.getMerkleProof(BigInt(0))
+                userStateTreePathElements.push(leafZeroPathElements)
+            }
+            
+            intermediateUserStateTreeRoots.push(userStateTree.getRootHash())
+        }
+
+        const circuitInputs = {
+            epoch: epoch,
+            from_nonce: toNonce,
+            to_nonce: toNonce,
+            identity_nullifier: user['identityNullifier'],
+            intermediate_user_state_tree_roots: intermediateUserStateTreeRoots,
+            old_pos_reps: oldPosReps,
+            old_neg_reps: oldNegReps,
+            old_graffities: oldGraffities,
+            old_sign_ups: oldSignUps,
+            path_elements: userStateTreePathElements,
+            attester_ids: attesterIds,
+            pos_reps: posReps,
+            neg_reps: negReps,
+            graffities: graffities,
+            overwrite_graffities: overwriteGraffitis,
+            sign_ups: signUps,
+            selectors: selectors,
+            hash_chain_starter: hashChainStarter,
+            input_blinded_user_state: inputBlindedUserState,
+        }
+        const witness = await executeCircuit(circuit, circuitInputs)
+        const outputUserState = getSignalByName(circuit, witness, 'main.blinded_user_state')
+        const expectedUserState = hash5([user['identityNullifier'], intermediateUserStateTreeRoots[numAttestationsPerProof], epoch, toNonce])
+        expect(outputUserState).to.equal(expectedUserState)
 
         const outputHashChainResult = getSignalByName(circuit, witness, 'main.blinded_hash_chain_result')
         const expectedHashChainResult = hash5([user['identityNullifier'], hashChainResult, epoch, toNonce])
