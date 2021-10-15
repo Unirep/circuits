@@ -1,8 +1,8 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hash5, hashLeftRight, SnarkBigInt, genIdentity, SparseMerkleTreeImpl, stringifyBigInts } from "@unirep/crypto"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
-import { genNewUserStateTree, Attestation, Reputation } from './utils'
+import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { genNewUserStateTree, Attestation, Reputation, compileAndLoadCircuit } from './utils'
 import { numAttestationsPerProof } from "../config/"
 
 describe('Process attestation circuit', function () {

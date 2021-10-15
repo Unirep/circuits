@@ -1,23 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
-const circom = require('circom')
 const snarkjs = require('snarkjs')
 
 const buildPath = "../build"
-
-/*
- * @param circuitPath The subpath to the circuit file (e.g.
- *     test/userStateTransition_test.circom)
- */
-const compileAndLoadCircuit = async (
-    circuitPath: string
-) => {
-    const circuit = await circom.tester(circuitPath)
-
-    await circuit.loadSymbols()
-
-    return circuit
-}
 
 const executeCircuit = async (
     circuit: any,
@@ -87,7 +72,6 @@ const formatProofForVerifierContract = (
 }
 
 export {
-    compileAndLoadCircuit,
     executeCircuit,
     formatProofForVerifierContract,
     getVKey,

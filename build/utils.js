@@ -19,22 +19,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyProof = exports.genProofAndPublicSignals = exports.getSignalByName = exports.getVKey = exports.formatProofForVerifierContract = exports.executeCircuit = exports.compileAndLoadCircuit = void 0;
+exports.verifyProof = exports.genProofAndPublicSignals = exports.getSignalByName = exports.getVKey = exports.formatProofForVerifierContract = exports.executeCircuit = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const circom = require('circom');
 const snarkjs = require('snarkjs');
 const buildPath = "../build";
-/*
- * @param circuitPath The subpath to the circuit file (e.g.
- *     test/userStateTransition_test.circom)
- */
-const compileAndLoadCircuit = async (circuitPath) => {
-    const circuit = await circom.tester(circuitPath);
-    await circuit.loadSymbols();
-    return circuit;
-};
-exports.compileAndLoadCircuit = compileAndLoadCircuit;
 const executeCircuit = async (circuit, inputs) => {
     const witness = await circuit.calculateWitness(inputs, true);
     await circuit.checkConstraints(witness);

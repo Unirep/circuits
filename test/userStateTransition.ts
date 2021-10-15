@@ -1,8 +1,8 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hash5, hashLeftRight, stringifyBigInts, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, IncrementalQuinTree, SnarkBigInt } from "@unirep/crypto"
-import { compileAndLoadCircuit, executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
-import { genNewUserStateTree, genNewEpochTree, Reputation, genEpochKey } from './utils'
+import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { genNewUserStateTree, genNewEpochTree, Reputation, genEpochKey, compileAndLoadCircuit } from './utils'
 import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, numEpochKeyNoncePerEpoch } from "../config/"
 
 describe('User State Transition circuits', function () {

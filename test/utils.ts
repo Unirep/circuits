@@ -3,6 +3,7 @@
 // @ts-ignore
 import assert from 'assert'
 import { ethers } from 'ethers'
+const circom = require('circom')
 import Keyv from "keyv"
 import { hash5, hashLeftRight, SparseMerkleTreeImpl, add0x, SnarkBigInt, hashOne, IncrementalQuinTree } from '@unirep/crypto'
 import { circuitEpochTreeDepth, circuitUserStateTreeDepth, } from '../config'
@@ -192,6 +193,20 @@ const genEpochKeyNullifier = (identityNullifier: SnarkBigInt, epoch: number, non
     return hash5([EPOCH_KEY_NULLIFIER_DOMAIN, identityNullifier, BigInt(epoch), BigInt(nonce), BigInt(0)])
 }
 
+/*
+ * @param circuitPath The subpath to the circuit file (e.g.
+ *     test/userStateTransition_test.circom)
+ */
+const compileAndLoadCircuit = async (
+    circuitPath: string
+) => {
+    const circuit = await circom.tester(circuitPath)
+
+    await circuit.loadSymbols()
+
+    return circuit
+}
+
 export {
     Attestation,
     Reputation,
@@ -205,4 +220,5 @@ export {
     toCompleteHexString,
     genEpochKey,
     genEpochKeyNullifier,
+    compileAndLoadCircuit,
 }

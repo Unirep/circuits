@@ -1,9 +1,9 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hashLeftRight, genIdentity, genIdentityCommitment, IncrementalQuinTree,  stringifyBigInts, } from "@unirep/crypto"
-import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
 import { numEpochKeyNoncePerEpoch, circuitEpochTreeDepth, circuitGlobalStateTreeDepth } from "../config"
-import { genEpochKey } from './utils'
+import { genEpochKey, compileAndLoadCircuit } from './utils'
 
 
 describe('Verify Epoch Key circuits', function () {

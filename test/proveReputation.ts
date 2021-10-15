@@ -1,8 +1,8 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hashLeftRight, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, stringifyBigInts, IncrementalQuinTree, hashOne, } from "@unirep/crypto"
-import { compileAndLoadCircuit, executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
-import { genEpochKey, genNewUserStateTree, Reputation } from './utils'
+import { executeCircuit, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { genEpochKey, genNewUserStateTree, Reputation, compileAndLoadCircuit } from './utils'
 import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, maxReputationBudget } from "../config"
 
 describe('Prove reputation from attester circuit', function () {
