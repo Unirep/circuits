@@ -1,6 +1,11 @@
-import * as fs from 'fs'
 import * as path from 'path'
 const snarkjs = require('snarkjs')
+import verifyEpochKeyVkey from '../build/verifyEpochKey.vkey.json'
+import proveReputationVkey from '../build/proveReputation.vkey.json'
+import proveUserSignUpVkey from '../build/proveUserSignUp.vkey.json'
+import startTransitionVkey from '../build/startTransition.vkey.json'
+import processAttestationsVkey from '../build/processAttestations.vkey.json'
+import userStateTransitionVkey from '../build/userStateTransition.vkey.json'
 
 const buildPath = "../build"
 
@@ -16,11 +21,25 @@ const executeCircuit = async (
     return witness
 }
 
-const getVKey = (
+const getVKey = async (
     circuitName: string
 ) => {
-    const vkeyJsonPath = path.join(__dirname, buildPath,`${circuitName}.vkey.json`)
-    return JSON.parse(fs.readFileSync(vkeyJsonPath).toString());
+    if (circuitName == 'verifyEpochKey'){
+        return verifyEpochKeyVkey
+    } else if (circuitName == 'proveReputation'){
+        return proveReputationVkey
+    } else if (circuitName == 'proveUserSignUp'){
+        return proveUserSignUpVkey
+    } else if (circuitName == 'startTransition'){
+        return startTransitionVkey
+    } else if (circuitName == 'processAttestations'){
+        return processAttestationsVkey
+    } else if (circuitName == 'userStateTransition'){
+        return userStateTransitionVkey
+    } else {
+        console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`)
+        return
+    }
 }
 
 const getSignalByName = (
@@ -36,6 +55,10 @@ const genProofAndPublicSignals = async (
     circuitName: string,
     inputs: any,
 ) => {
+    if(circuitName != 'verifyEpochKey' && circuitName != 'proveReputation' && circuitName != 'proveUserSignUp' && circuitName != 'startTransition' && circuitName != 'processAttestations' && circuitName != 'userStateTransition') {
+        console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`)
+        return { }
+    }
     const circuitWasmPath = path.join(__dirname, buildPath, `${circuitName}.wasm`)
     const zkeyPath = path.join(__dirname, buildPath,`${circuitName}.zkey`)
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(inputs, circuitWasmPath, zkeyPath);
@@ -48,10 +71,8 @@ const verifyProof = async (
     proof: any,
     publicSignals: any,
 ): Promise<boolean> => {
-    const vkeyJsonPath = path.join(__dirname, buildPath,`${circuitName}.vkey.json`)
-    const vKey = JSON.parse(fs.readFileSync(vkeyJsonPath).toString());
-    const res = await snarkjs.groth16.verify(vKey, publicSignals, proof);
-
+    const vkey = await getVKey(circuitName)
+    const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
     return res
 }
 
