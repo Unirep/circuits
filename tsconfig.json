@@ -6,7 +6,7 @@
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "noImplicitAny": false,
-        "outDir": "./build",
+        "outDir": "./",
         "declaration": true,
     },
     "exclude": [

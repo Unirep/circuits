@@ -1,7 +1,7 @@
 {
   "name": "@unirep/circuits",
   "version": "1.0.3",
-  "main": "build/circuits/utils.js",
+  "main": "circuits/utils.js",
   "scripts": {
     "build": "yarn downloadPtau && yarn buildCircuits && yarn buildVerifyEpochKeySnark && yarn buildUserStateTransitionSnark && yarn buildProveReputationSnark && yarn buildProveUserSignUpSnark && tsc",
     "downloadPtau": "./scripts/downloadPtau.sh",
