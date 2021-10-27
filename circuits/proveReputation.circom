@@ -114,7 +114,7 @@ template ProveReputation(GST_tree_depth, user_state_tree_depth, epoch_tree_depth
         rep_nullifier_hasher[i].in[1] <== identity_nullifier;
         rep_nullifier_hasher[i].in[2] <== epoch;
         rep_nullifier_hasher[i].in[3] <== rep_nonce[i];
-        rep_nullifier_hasher[i].in[4] <== 0;
+        rep_nullifier_hasher[i].in[4] <== attester_id; // The reputation nullifier is spent at the attester's app
         if_output_nullifiers[i].c[0] <== default_nullifier_zero;
         if_output_nullifiers[i].c[1] <== rep_nullifier_hasher[i].hash;
         if_output_nullifiers[i].s <== selectors[i] * if_prove_rep_nullifiers.out;
