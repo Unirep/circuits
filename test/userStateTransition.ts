@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hash5, hashLeftRight, stringifyBigInts, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, IncrementalQuinTree, SnarkBigInt } from "@unirep/crypto"
-import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof, CircuitName } from "../circuits/utils"
 import { genNewUserStateTree, genNewEpochTree, Reputation, genEpochKey, compileAndLoadCircuit } from './utils'
 import { circuitEpochTreeDepth, circuitGlobalStateTreeDepth, numEpochKeyNoncePerEpoch } from "../config/"
 
@@ -176,10 +176,10 @@ describe('User State Transition circuits', function () {
                 expect(_newGSTLeaf, 'new GST leaf mismatch').to.equal(newGSTLeaf)
 
                 const startTime = new Date().getTime()
-                const results = await genProofAndPublicSignals('userStateTransition', stringifyBigInts(circuitInputs))
+                const results = await genProofAndPublicSignals(CircuitName.userStateTransition, stringifyBigInts(circuitInputs))
                 const endTime = new Date().getTime()
                 console.log(`Gen Proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
-                const isValid = await verifyProof('userStateTransition', results['proof'], results['publicSignals'])
+                const isValid = await verifyProof(CircuitName.userStateTransition, results['proof'], results['publicSignals'])
                 expect(isValid).to.be.true
             })
         })

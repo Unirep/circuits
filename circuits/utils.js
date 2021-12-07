@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyProof = exports.genProofAndPublicSignals = exports.getSignalByName = exports.getVKey = exports.formatProofForVerifierContract = exports.executeCircuit = void 0;
+exports.verifyProof = exports.genProofAndPublicSignals = exports.getSignalByName = exports.getVKey = exports.formatProofForVerifierContract = exports.executeCircuit = exports.CircuitName = void 0;
 const path = __importStar(require("path"));
 const snarkjs = require('snarkjs');
 const verifyEpochKey_vkey_json_1 = __importDefault(require("../build/verifyEpochKey.vkey.json"));
@@ -32,6 +32,16 @@ const startTransition_vkey_json_1 = __importDefault(require("../build/startTrans
 const processAttestations_vkey_json_1 = __importDefault(require("../build/processAttestations.vkey.json"));
 const userStateTransition_vkey_json_1 = __importDefault(require("../build/userStateTransition.vkey.json"));
 const buildPath = "../build";
+var CircuitName;
+(function (CircuitName) {
+    CircuitName["verifyEpochKey"] = "verifyEpochKey";
+    CircuitName["proveReputation"] = "proveReputation";
+    CircuitName["proveUserSignUp"] = "proveUserSignUp";
+    CircuitName["startTransition"] = "startTransition";
+    CircuitName["processAttestations"] = "processAttestations";
+    CircuitName["userStateTransition"] = "userStateTransition";
+})(CircuitName || (CircuitName = {}));
+exports.CircuitName = CircuitName;
 const executeCircuit = async (circuit, inputs) => {
     const witness = await circuit.calculateWitness(inputs, true);
     await circuit.checkConstraints(witness);
@@ -40,22 +50,22 @@ const executeCircuit = async (circuit, inputs) => {
 };
 exports.executeCircuit = executeCircuit;
 const getVKey = async (circuitName) => {
-    if (circuitName == 'verifyEpochKey') {
+    if (circuitName == CircuitName.verifyEpochKey) {
         return verifyEpochKey_vkey_json_1.default;
     }
-    else if (circuitName == 'proveReputation') {
+    else if (circuitName == CircuitName.proveReputation) {
         return proveReputation_vkey_json_1.default;
     }
-    else if (circuitName == 'proveUserSignUp') {
+    else if (circuitName == CircuitName.proveUserSignUp) {
         return proveUserSignUp_vkey_json_1.default;
     }
-    else if (circuitName == 'startTransition') {
+    else if (circuitName == CircuitName.startTransition) {
         return startTransition_vkey_json_1.default;
     }
-    else if (circuitName == 'processAttestations') {
+    else if (circuitName == CircuitName.processAttestations) {
         return processAttestations_vkey_json_1.default;
     }
-    else if (circuitName == 'userStateTransition') {
+    else if (circuitName == CircuitName.userStateTransition) {
         return userStateTransition_vkey_json_1.default;
     }
     else {
@@ -69,10 +79,6 @@ const getSignalByName = (circuit, witness, signal) => {
 };
 exports.getSignalByName = getSignalByName;
 const genProofAndPublicSignals = async (circuitName, inputs) => {
-    if (circuitName != 'verifyEpochKey' && circuitName != 'proveReputation' && circuitName != 'proveUserSignUp' && circuitName != 'startTransition' && circuitName != 'processAttestations' && circuitName != 'userStateTransition') {
-        console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`);
-        return {};
-    }
     const circuitWasmPath = path.join(__dirname, buildPath, `${circuitName}.wasm`);
     const zkeyPath = path.join(__dirname, buildPath, `${circuitName}.zkey`);
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(inputs, circuitWasmPath, zkeyPath);

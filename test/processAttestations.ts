@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hash5, hashLeftRight, SnarkBigInt, genIdentity, SparseMerkleTreeImpl, stringifyBigInts } from "@unirep/crypto"
-import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof, CircuitName } from "../circuits/utils"
 import { genNewUserStateTree, Attestation, Reputation, compileAndLoadCircuit } from './utils'
 import { numAttestationsPerProof } from "../config/"
 
@@ -157,10 +157,10 @@ describe('Process attestation circuit', function () {
         expect(outputHashChainResult).to.equal(expectedHashChainResult)
 
         const startTime = new Date().getTime()
-        const results = await genProofAndPublicSignals('processAttestations', stringifyBigInts(circuitInputs))
+        const results = await genProofAndPublicSignals(CircuitName.processAttestations, stringifyBigInts(circuitInputs))
         const endTime = new Date().getTime()
         console.log(`Gen Proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
-        const isValid = await verifyProof('processAttestations', results['proof'], results['publicSignals'])
+        const isValid = await verifyProof(CircuitName.processAttestations, results['proof'], results['publicSignals'])
         expect(isValid).to.be.true
     })
 

@@ -1,5 +1,13 @@
+declare enum CircuitName {
+    verifyEpochKey = "verifyEpochKey",
+    proveReputation = "proveReputation",
+    proveUserSignUp = "proveUserSignUp",
+    startTransition = "startTransition",
+    processAttestations = "processAttestations",
+    userStateTransition = "userStateTransition"
+}
 declare const executeCircuit: (circuit: any, inputs: any) => Promise<any>;
-declare const getVKey: (circuitName: string) => Promise<{
+declare const getVKey: (circuitName: CircuitName) => Promise<{
     protocol: string;
     curve: string;
     nPublic: number;
@@ -11,13 +19,10 @@ declare const getVKey: (circuitName: string) => Promise<{
     IC: string[][];
 } | undefined>;
 declare const getSignalByName: (circuit: any, witness: any, signal: string) => any;
-declare const genProofAndPublicSignals: (circuitName: string, inputs: any) => Promise<{
-    proof?: undefined;
-    publicSignals?: undefined;
-} | {
+declare const genProofAndPublicSignals: (circuitName: CircuitName, inputs: any) => Promise<{
     proof: any;
     publicSignals: any;
 }>;
-declare const verifyProof: (circuitName: string, proof: any, publicSignals: any) => Promise<boolean>;
+declare const verifyProof: (circuitName: CircuitName, proof: any, publicSignals: any) => Promise<boolean>;
 declare const formatProofForVerifierContract: (_proof: any) => any[];
-export { executeCircuit, formatProofForVerifierContract, getVKey, getSignalByName, genProofAndPublicSignals, verifyProof, };
+export { CircuitName, executeCircuit, formatProofForVerifierContract, getVKey, getSignalByName, genProofAndPublicSignals, verifyProof, };

@@ -1,4 +1,4 @@
-# Unirep circuits v1.0.2
+# Unirep circuits v1.0.3
 
 Circuits used in UniRep
 
@@ -47,6 +47,11 @@ yarn test
 ### `proveUserSignUp`
 1. Check if user exists in the Global State Tree and verify epoch key
 2. Check if the reputation given by the attester is in the user state tree
-3. Check if user has signed up in the attester's application
+3. Indicate if user has signed up in the attester's application
 > Fixed epoch key nonce: one user is only allowed to get attester's airdrop once per epoch 
 > Sign up flag cannot be overwritten. Once a user has signed up before, he can always prove that he has signed up.
+
+## 7/12/2021 Update log
+- User can prove that he has not signed up in one leaf to get airdrop
+  `proveUserSignUp` circuit: change `sign_up` from private input to public input
+- Export `CircuitName` enum

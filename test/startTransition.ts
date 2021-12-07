@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { expect } from "chai"
 import { genRandomSalt, hash5, hashLeftRight, stringifyBigInts, genIdentity, genIdentityCommitment, SparseMerkleTreeImpl, IncrementalQuinTree } from "@unirep/crypto"
-import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof } from "../circuits/utils"
+import { executeCircuit, getSignalByName, genProofAndPublicSignals, verifyProof, CircuitName } from "../circuits/utils"
 import { genNewUserStateTree, Reputation, compileAndLoadCircuit } from './utils'
 import { circuitGlobalStateTreeDepth } from "../config/"
 
@@ -81,10 +81,10 @@ describe('User State Transition circuits', function () {
                 expect(outputHashChainResult).to.equal(expectedHashChainResult)
 
                 const startTime = new Date().getTime()
-                const results = await genProofAndPublicSignals('startTransition', stringifyBigInts(circuitInputs))
+                const results = await genProofAndPublicSignals(CircuitName.startTransition, stringifyBigInts(circuitInputs))
                 const endTime = new Date().getTime()
                 console.log(`Gen Proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
-                const isValid = await verifyProof('startTransition', results['proof'], results['publicSignals'])
+                const isValid = await verifyProof(CircuitName.startTransition, results['proof'], results['publicSignals'])
                 expect(isValid).to.be.true
             })
 

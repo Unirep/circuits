@@ -9,6 +9,15 @@ import userStateTransitionVkey from '../build/userStateTransition.vkey.json'
 
 const buildPath = "../build"
 
+enum CircuitName {
+    verifyEpochKey = 'verifyEpochKey',
+    proveReputation = 'proveReputation',
+    proveUserSignUp = 'proveUserSignUp',
+    startTransition = 'startTransition',
+    processAttestations = 'processAttestations',
+    userStateTransition = 'userStateTransition',
+}
+
 const executeCircuit = async (
     circuit: any,
     inputs: any,
@@ -22,19 +31,19 @@ const executeCircuit = async (
 }
 
 const getVKey = async (
-    circuitName: string
+    circuitName: CircuitName
 ) => {
-    if (circuitName == 'verifyEpochKey'){
+    if (circuitName == CircuitName.verifyEpochKey){
         return verifyEpochKeyVkey
-    } else if (circuitName == 'proveReputation'){
+    } else if (circuitName == CircuitName.proveReputation){
         return proveReputationVkey
-    } else if (circuitName == 'proveUserSignUp'){
+    } else if (circuitName == CircuitName.proveUserSignUp){
         return proveUserSignUpVkey
-    } else if (circuitName == 'startTransition'){
+    } else if (circuitName == CircuitName.startTransition){
         return startTransitionVkey
-    } else if (circuitName == 'processAttestations'){
+    } else if (circuitName == CircuitName.processAttestations){
         return processAttestationsVkey
-    } else if (circuitName == 'userStateTransition'){
+    } else if (circuitName == CircuitName.userStateTransition){
         return userStateTransitionVkey
     } else {
         console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`)
@@ -52,13 +61,9 @@ const getSignalByName = (
 }
 
 const genProofAndPublicSignals = async (
-    circuitName: string,
+    circuitName: CircuitName,
     inputs: any,
 ) => {
-    if(circuitName != 'verifyEpochKey' && circuitName != 'proveReputation' && circuitName != 'proveUserSignUp' && circuitName != 'startTransition' && circuitName != 'processAttestations' && circuitName != 'userStateTransition') {
-        console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`)
-        return { }
-    }
     const circuitWasmPath = path.join(__dirname, buildPath, `${circuitName}.wasm`)
     const zkeyPath = path.join(__dirname, buildPath,`${circuitName}.zkey`)
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(inputs, circuitWasmPath, zkeyPath);
@@ -67,7 +72,7 @@ const genProofAndPublicSignals = async (
 }
 
 const verifyProof = async (
-    circuitName: string,
+    circuitName: CircuitName,
     proof: any,
     publicSignals: any,
 ): Promise<boolean> => {
@@ -93,6 +98,7 @@ const formatProofForVerifierContract = (
 }
 
 export {
+    CircuitName,
     executeCircuit,
     formatProofForVerifierContract,
     getVKey,
