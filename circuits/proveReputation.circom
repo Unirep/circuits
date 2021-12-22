@@ -1,3 +1,10 @@
+/*
+    Prove: 
+        1. if user has a leaf in an existed global state tree
+        2. user state tree has the claimed reputation (pos_rep, neg_rep, graffiti)
+        3. output an epoch key
+*/
+
 include "../node_modules/circomlib/circuits/comparators.circom";
 include "../node_modules/circomlib/circuits/mux1.circom";
 include "./hasherPoseidon.circom";

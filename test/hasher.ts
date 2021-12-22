@@ -4,6 +4,9 @@ import { stringifyBigInts, genRandomSalt, hashLeftRight, hash5, } from "@unirep/
 import { executeCircuit, getSignalByName, } from "../circuits/utils"
 import { compileAndLoadCircuit } from './utils'
 
+const hasher5CircuitPath = path.join(__dirname, '../circuits/test/hasher5_test.circom')
+const hashleftrightCircuitPath = path.join(__dirname, '../circuits/test/hashleftright_test.circom')
+
 describe('Poseidon hash circuits', function (){
     this.timeout(100000)
     let circuit
@@ -11,8 +14,7 @@ describe('Poseidon hash circuits', function (){
     describe('Hasher5', () => {
         it('correctly hashes 5 random values', async () => {
             
-            const circuitPath = path.join(__dirname, '../circuits/test/hasher5_test.circom')
-            circuit = await compileAndLoadCircuit(circuitPath)
+            circuit = await compileAndLoadCircuit(hasher5CircuitPath)
             const preImages: any = []
             for (let i = 0; i < 5; i++) {
                 preImages.push(genRandomSalt())
@@ -34,8 +36,7 @@ describe('Poseidon hash circuits', function (){
     describe('HashLeftRight', () => {
 
         it('correctly hashes two random values', async () => {
-            const circuitPath = path.join(__dirname, '../circuits/test/hashleftright_test.circom')
-            const circuit = await compileAndLoadCircuit(circuitPath)
+            const circuit = await compileAndLoadCircuit(hashleftrightCircuitPath)
 
             const left = genRandomSalt()
             const right = genRandomSalt()

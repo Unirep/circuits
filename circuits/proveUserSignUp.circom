@@ -1,3 +1,10 @@
+/*
+    Prove: 
+        1. if user has a leaf in an existed global state tree
+        2. user state tree has a `sign_up` flag given by the attester
+        3. output an epoch key with nonce = 0 (ensure one epoch key per user per epoch)
+*/
+
 include "../node_modules/circomlib/circuits/mux1.circom";
 include "./hasherPoseidon.circom";
 include "./sparseMerkleTree.circom";

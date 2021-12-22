@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, } from '../config'
+import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, verifyEpochKeyCircuitPath, proveReputationCircuitPath, startTransitionCircuitPath, processAttestationsCircuitPath, userStateTransitionCircuitPath, } from '../config'
 
 const main = async () => {
     let testCircuitContent
@@ -9,7 +9,7 @@ const main = async () => {
 
     // verifyEpochKey circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/verifyEpochKey_main.circom`)
+    circomPath = path.join(__dirname, verifyEpochKeyCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/verifyEpochKey.circom" \n\ncomponent main = VerifyEpochKey(${circuitGlobalStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch})`
@@ -24,7 +24,7 @@ const main = async () => {
 
     // proveRepuation circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/proveReputation_main.circom`)
+    circomPath = path.join(__dirname, proveReputationCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/proveReputation.circom" \n\ncomponent main = ProveReputation(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch}, ${maxReputationBudget}, 252)`
@@ -38,7 +38,7 @@ const main = async () => {
 
     // proveUserSignUp circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/proveUserSignUp_main.circom`)
+    circomPath = path.join(__dirname, proveReputationCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/proveUserSignUp.circom" \n\ncomponent main = ProveUserSignUp(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch})`
@@ -53,7 +53,7 @@ const main = async () => {
     
     // startTransition circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/startTransition_main.circom`)
+    circomPath = path.join(__dirname, startTransitionCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/startTransition.circom" \n\ncomponent main = StartTransition(${circuitGlobalStateTreeDepth})`
@@ -68,7 +68,7 @@ const main = async () => {
 
     // processAttestations circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/processAttestations_main.circom`)
+    circomPath = path.join(__dirname, processAttestationsCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/processAttestations.circom" \n\ncomponent main = ProcessAttestations(${circuitUserStateTreeDepth}, ${numAttestationsPerProof}, ${numEpochKeyNoncePerEpoch})`
@@ -83,7 +83,7 @@ const main = async () => {
 
     // userStateTransition circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, `../build/userStateTransition_main.circom`)
+    circomPath = path.join(__dirname, userStateTransitionCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/userStateTransition.circom" \n\ncomponent main = UserStateTransition(${circuitGlobalStateTreeDepth}, ${circuitEpochTreeDepth}, ${circuitUserStateTreeDepth}, ${numEpochKeyNoncePerEpoch})`

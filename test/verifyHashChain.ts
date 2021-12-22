@@ -1,8 +1,9 @@
 import * as path from 'path'
-import { expect } from "chai"
 import { genRandomSalt, hashLeftRight, SnarkBigInt, } from "@unirep/crypto"
 import { executeCircuit, } from "../circuits/utils"
-import { compileAndLoadCircuit } from './utils'
+import { compileAndLoadCircuit, throwError } from './utils'
+
+const sealedHashChainCircuitPath = path.join(__dirname, '../circuits/test/verifyHashChain_test.circom')
 
 describe('Hash chain circuit', function () {
     this.timeout(30000)
@@ -13,8 +14,7 @@ describe('Hash chain circuit', function () {
     let cur: BigInt = BigInt(0), result, selectors: number[] = []
 
     before(async () => {
-        const circuitPath = path.join(__dirname, '../circuits/test/verifyHashChain_test.circom')
-        circuit = await compileAndLoadCircuit(circuitPath)
+        circuit = await compileAndLoadCircuit(sealedHashChainCircuitPath)
 
         for (let i = 0; i < NUM_ELEMENT; i++) {
             const element = genRandomSalt()
@@ -35,7 +35,7 @@ describe('Hash chain circuit', function () {
             result: result
         }
 
-        const witness = await executeCircuit(circuit, circuitInputs)
+        await executeCircuit(circuit, circuitInputs)
     })
 
     it('verify incorrect elements should fail', async () => {
@@ -46,15 +46,7 @@ describe('Hash chain circuit', function () {
             result: result
         }
 
-        let error
-        try {
-            await executeCircuit(circuit, circuitInputs)
-        } catch (e) {
-            error = e
-            expect(true).to.be.true
-        } finally {
-            if (!error) throw Error("Wrong hashes should throw error")
-        }
+        await throwError(circuit, circuitInputs, "Wrong hashes should throw error")
         elements.reverse()
     })
 
@@ -69,15 +61,7 @@ describe('Hash chain circuit', function () {
             result: result
         }
 
-        let error
-        try {
-            await executeCircuit(circuit, circuitInputs)
-        } catch (e) {
-            error = e
-            expect(true).to.be.true
-        } finally {
-            if (!error) throw Error("Wrong selectors should throw error")
-        }
+        await throwError(circuit, circuitInputs, "Wrong selectors should throw error")
     })
 
     it('verify incorrect number of elements should fail', async () => {
@@ -87,15 +71,7 @@ describe('Hash chain circuit', function () {
             result: result
         }
 
-        let error
-        try {
-            await executeCircuit(circuit, circuitInputs)
-        } catch (e) {
-            error = e
-            expect(true).to.be.true
-        } finally {
-            if (!error) throw Error("Wrong number of hashes should throw error")
-        }
+        await throwError(circuit, circuitInputs, "Wrong number of hashes should throw error")
     })
 
     it('verify incorrect result should fail', async () => {
@@ -106,14 +82,6 @@ describe('Hash chain circuit', function () {
             result: incorrectResult
         }
 
-        let error
-        try {
-            await executeCircuit(circuit, circuitInputs)
-        } catch (e) {
-            error = e
-            expect(true).to.be.true
-        } finally {
-            if (!error) throw Error("Wrong hash chain result should throw error")
-        }
+        await throwError(circuit, circuitInputs, "Wrong hash chain result should throw error")
     })
 })

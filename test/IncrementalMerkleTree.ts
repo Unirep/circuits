@@ -6,6 +6,8 @@ import { compileAndLoadCircuit } from './utils'
 
 const LEVELS = 4
 const ZERO_VALUE = 0
+const LeafExistsCircuitPath = path.join(__dirname, '../circuits/test/merkleTreeLeafExists_test.circom')
+const InclusionProofCircuitPath = path.join(__dirname, '../circuits/test/merkleTreeInclusionProof_test.circom')
 
 describe('Merkle Tree circuits', function () {
     this.timeout(30000)
@@ -13,8 +15,7 @@ describe('Merkle Tree circuits', function () {
         let circuit
 
         before(async () => {
-            const circuitPath = path.join(__dirname, '../circuits/test/merkleTreeLeafExists_test.circom')
-            circuit = await compileAndLoadCircuit(circuitPath)
+            circuit = await compileAndLoadCircuit(LeafExistsCircuitPath)
         })
 
         it('Valid LeafExists inputs should work', async () => {
@@ -77,8 +78,7 @@ describe('Merkle Tree circuits', function () {
         let circuit
 
         before(async () => {
-            const circuitPath = path.join(__dirname, '../circuits/test/merkleTreeInclusionProof_test.circom')
-            circuit = await compileAndLoadCircuit(circuitPath)
+            circuit = await compileAndLoadCircuit(InclusionProofCircuitPath)
         })
 
         it('Valid update proofs should work', async () => {

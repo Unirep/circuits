@@ -1,13 +1,7 @@
-declare enum CircuitName {
-    verifyEpochKey = "verifyEpochKey",
-    proveReputation = "proveReputation",
-    proveUserSignUp = "proveUserSignUp",
-    startTransition = "startTransition",
-    processAttestations = "processAttestations",
-    userStateTransition = "userStateTransition"
-}
+import { SnarkProof, SnarkPublicSignals } from '@unirep/crypto';
+import { Circuit } from '../config/index';
 declare const executeCircuit: (circuit: any, inputs: any) => Promise<any>;
-declare const getVKey: (circuitName: CircuitName) => Promise<{
+declare const getVKey: (circuitName: Circuit) => Promise<{
     protocol: string;
     curve: string;
     nPublic: number;
@@ -19,10 +13,11 @@ declare const getVKey: (circuitName: CircuitName) => Promise<{
     IC: string[][];
 } | undefined>;
 declare const getSignalByName: (circuit: any, witness: any, signal: string) => any;
-declare const genProofAndPublicSignals: (circuitName: CircuitName, inputs: any) => Promise<{
+declare const genProofAndPublicSignals: (circuitName: Circuit, inputs: any) => Promise<{
     proof: any;
     publicSignals: any;
 }>;
-declare const verifyProof: (circuitName: CircuitName, proof: any, publicSignals: any) => Promise<boolean>;
-declare const formatProofForVerifierContract: (_proof: any) => any[];
-export { CircuitName, executeCircuit, formatProofForVerifierContract, getVKey, getSignalByName, genProofAndPublicSignals, verifyProof, };
+declare const verifyProof: (circuitName: Circuit, proof: SnarkProof, publicSignals: SnarkPublicSignals) => Promise<boolean>;
+declare const formatProofForVerifierContract: (_proof: SnarkProof) => string[];
+declare const formatProofForSnarkjsVerification: (_proof: string[]) => SnarkProof;
+export { Circuit, executeCircuit, formatProofForVerifierContract, formatProofForSnarkjsVerification, getVKey, getSignalByName, genProofAndPublicSignals, verifyProof, };

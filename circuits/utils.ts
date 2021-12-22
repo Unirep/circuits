@@ -1,5 +1,7 @@
 import * as path from 'path'
 const snarkjs = require('snarkjs')
+import { SnarkProof, SnarkPublicSignals } from '@unirep/crypto'
+import { Circuit } from '../config/index'
 import verifyEpochKeyVkey from '../build/verifyEpochKey.vkey.json'
 import proveReputationVkey from '../build/proveReputation.vkey.json'
 import proveUserSignUpVkey from '../build/proveUserSignUp.vkey.json'
@@ -8,15 +10,6 @@ import processAttestationsVkey from '../build/processAttestations.vkey.json'
 import userStateTransitionVkey from '../build/userStateTransition.vkey.json'
 
 const buildPath = "../build"
-
-enum CircuitName {
-    verifyEpochKey = 'verifyEpochKey',
-    proveReputation = 'proveReputation',
-    proveUserSignUp = 'proveUserSignUp',
-    startTransition = 'startTransition',
-    processAttestations = 'processAttestations',
-    userStateTransition = 'userStateTransition',
-}
 
 const executeCircuit = async (
     circuit: any,
@@ -31,19 +24,19 @@ const executeCircuit = async (
 }
 
 const getVKey = async (
-    circuitName: CircuitName
+    circuitName: Circuit
 ) => {
-    if (circuitName == CircuitName.verifyEpochKey){
+    if (circuitName == Circuit.verifyEpochKey){
         return verifyEpochKeyVkey
-    } else if (circuitName == CircuitName.proveReputation){
+    } else if (circuitName == Circuit.proveReputation){
         return proveReputationVkey
-    } else if (circuitName == CircuitName.proveUserSignUp){
+    } else if (circuitName == Circuit.proveUserSignUp){
         return proveUserSignUpVkey
-    } else if (circuitName == CircuitName.startTransition){
+    } else if (circuitName == Circuit.startTransition){
         return startTransitionVkey
-    } else if (circuitName == CircuitName.processAttestations){
+    } else if (circuitName == Circuit.processAttestations){
         return processAttestationsVkey
-    } else if (circuitName == CircuitName.userStateTransition){
+    } else if (circuitName == Circuit.userStateTransition){
         return userStateTransitionVkey
     } else {
         console.log(`"${circuitName}" not found. Valid circuit name: verifyEpochKey, proveReputation, proveUserSignUp, startTransition, processAttestations, userStateTransition`)
@@ -61,7 +54,7 @@ const getSignalByName = (
 }
 
 const genProofAndPublicSignals = async (
-    circuitName: CircuitName,
+    circuitName: Circuit,
     inputs: any,
 ) => {
     const circuitWasmPath = path.join(__dirname, buildPath, `${circuitName}.wasm`)
@@ -72,9 +65,9 @@ const genProofAndPublicSignals = async (
 }
 
 const verifyProof = async (
-    circuitName: CircuitName,
-    proof: any,
-    publicSignals: any,
+    circuitName: Circuit,
+    proof: SnarkProof,
+    publicSignals: SnarkPublicSignals,
 ): Promise<boolean> => {
     const vkey = await getVKey(circuitName)
     const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
@@ -82,8 +75,8 @@ const verifyProof = async (
 }
 
 const formatProofForVerifierContract = (
-    _proof: any,
-) => {
+    _proof: SnarkProof,
+): string[] => {
 
     return ([
         _proof.pi_a[0],
@@ -97,10 +90,40 @@ const formatProofForVerifierContract = (
     ]).map((x) => x.toString())
 }
 
+const formatProofForSnarkjsVerification = (
+    _proof: string[]
+): SnarkProof => {
+    return {
+        pi_a: [
+            BigInt(_proof[0]),
+            BigInt(_proof[1]),
+            BigInt('1')
+        ],
+        pi_b: [
+          [
+            BigInt(_proof[3]),
+            BigInt(_proof[2])
+          ],
+          [
+            BigInt(_proof[5]),
+            BigInt(_proof[4])
+          ],
+          [ BigInt('1'), 
+            BigInt('0') ]
+        ],
+        pi_c: [
+            BigInt(_proof[6]),
+            BigInt(_proof[7]),
+            BigInt('1')
+        ],
+      }
+}
+
 export {
-    CircuitName,
+    Circuit,
     executeCircuit,
     formatProofForVerifierContract,
+    formatProofForSnarkjsVerification,
     getVKey,
     getSignalByName,
     genProofAndPublicSignals,

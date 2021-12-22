@@ -5,6 +5,8 @@ import { executeCircuit, getSignalByName, } from "../circuits/utils"
 import { genNewSMT, compileAndLoadCircuit } from "./utils"
 // circuitEpochTreeDepth too large will greatly slow down the test...
 const circuitEpochTreeDepth = 8
+const circuitPath = path.join(__dirname, '../circuits/test/smtLeafExists_test.circom')
+const InclusionProofCircuitPath = path.join(__dirname, '../circuits/test/smtInclusionProof_test.circom')
 
 describe('Sparse Merkle Tree circuits', function () {
     this.timeout(500000)
@@ -16,7 +18,6 @@ describe('Sparse Merkle Tree circuits', function () {
         let leafIndicesToInsert: number[], emptyLeafIndices: number[]
 
         before(async () => {
-            const circuitPath = path.join(__dirname, '../circuits/test/smtLeafExists_test.circom')
             circuit = await compileAndLoadCircuit(circuitPath)
 
             const defaultLeafHash = hashOne(BigInt(0))
@@ -146,8 +147,7 @@ describe('Sparse Merkle Tree circuits', function () {
         let circuit
 
         before(async () => {
-            const circuitPath = path.join(__dirname, '../circuits/test/smtInclusionProof_test.circom')
-            circuit = await compileAndLoadCircuit(circuitPath)
+            circuit = await compileAndLoadCircuit(InclusionProofCircuitPath)
         })
 
         it('Valid update proofs should work', async () => {
