@@ -8,9 +8,9 @@ declare enum Circuit {
 }
 declare const numEpochKeyNoncePerEpoch = 3;
 declare const numAttestationsPerProof = 5;
-declare const circuitGlobalStateTreeDepth = 4;
-declare const circuitUserStateTreeDepth = 4;
-declare const circuitEpochTreeDepth = 32;
+declare const circuitGlobalStateTreeDepth = 5;
+declare const circuitUserStateTreeDepth = 5;
+declare const circuitEpochTreeDepth = 64;
 declare const maxReputationBudget = 10;
 declare const verifyEpochKeyCircuitPath = "../build/verifyEpochKey_main.circom";
 declare const proveReputationCircuitPath = "../build/proveReputation_main.circom";

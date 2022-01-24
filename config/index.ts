@@ -11,11 +11,11 @@ const numEpochKeyNoncePerEpoch = 3;
 
 const numAttestationsPerProof = 5;
 
-const circuitGlobalStateTreeDepth = 4;
+const circuitGlobalStateTreeDepth = 5;
 
-const circuitUserStateTreeDepth = 4;
+const circuitUserStateTreeDepth = 5;
 
-const circuitEpochTreeDepth = 32;
+const circuitEpochTreeDepth = 64;
 
 const maxReputationBudget = 10;
 
