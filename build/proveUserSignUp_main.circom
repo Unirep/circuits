@@ -1,3 +1,3 @@
 include "../circuits/proveUserSignUp.circom" 
 
-component main = ProveUserSignUp(5, 5, 64, 3)
+component main = ProveUserSignUp(5, 5, 32, 3)

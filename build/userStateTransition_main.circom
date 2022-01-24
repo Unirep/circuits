@@ -1,3 +1,3 @@
 include "../circuits/userStateTransition.circom" 
 
-component main = UserStateTransition(5, 64, 5, 3)
+component main = UserStateTransition(5, 32, 5, 3)
