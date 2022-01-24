@@ -1,4 +1,4 @@
-# Unirep circuits v1.0.3
+# Unirep circuits v1.0.4
 
 Circuits used in UniRep
 
@@ -51,7 +51,12 @@ yarn test
 > Fixed epoch key nonce: one user is only allowed to get attester's airdrop once per epoch 
 > Sign up flag cannot be overwritten. Once a user has signed up before, he can always prove that he has signed up.
 
-## 7/12/2021 Update log
+## v1.0.4 
+- Rename `CircuitName` to `Circuit`
+- Add `formatProofForSnarkjsVerification` function
+- Make test scripts more clean
+
+## v1.0.3 Update log
 - User can prove that he has not signed up in one leaf to get airdrop
   `proveUserSignUp` circuit: change `sign_up` from private input to public input
 - Export `CircuitName` enum
