@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, verifyEpochKeyCircuitPath, proveReputationCircuitPath, startTransitionCircuitPath, processAttestationsCircuitPath, userStateTransitionCircuitPath, } from '../config'
+import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, verifyEpochKeyCircuitPath, proveReputationCircuitPath, proveUserSignUpCircuitPath, startTransitionCircuitPath, processAttestationsCircuitPath, userStateTransitionCircuitPath, } from '../config'
 
 const main = async () => {
     let testCircuitContent
@@ -38,7 +38,7 @@ const main = async () => {
 
     // proveUserSignUp circuit
     dirPath = path.join(__dirname, '../build')
-    circomPath = path.join(__dirname, proveReputationCircuitPath)
+    circomPath = path.join(__dirname, proveUserSignUpCircuitPath)
 
     // create .circom file
     testCircuitContent = `include "../circuits/proveUserSignUp.circom" \n\ncomponent main = ProveUserSignUp(${circuitGlobalStateTreeDepth}, ${circuitUserStateTreeDepth}, ${circuitEpochTreeDepth}, ${numEpochKeyNoncePerEpoch})`
