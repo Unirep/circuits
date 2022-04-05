@@ -11,7 +11,7 @@ const numEpochKeyNoncePerEpoch = 3;
 
 const numAttestationsPerProof = 5;
 
-const circuitGlobalStateTreeDepth = 5;
+const circuitGlobalStateTreeDepth = 11;
 
 const circuitUserStateTreeDepth = 5;
 

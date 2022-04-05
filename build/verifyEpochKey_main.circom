@@ -1,3 +1,3 @@
 include "../circuits/verifyEpochKey.circom" 
 
-component main = VerifyEpochKey(5, 32, 3)
+component main = VerifyEpochKey(11, 32, 3)

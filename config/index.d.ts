@@ -8,7 +8,7 @@ declare enum Circuit {
 }
 declare const numEpochKeyNoncePerEpoch = 3;
 declare const numAttestationsPerProof = 5;
-declare const circuitGlobalStateTreeDepth = 5;
+declare const circuitGlobalStateTreeDepth = 11;
 declare const circuitUserStateTreeDepth = 5;
 declare const circuitEpochTreeDepth = 32;
 declare const maxReputationBudget = 10;
