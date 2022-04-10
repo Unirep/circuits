@@ -15,7 +15,7 @@ const circuitGlobalStateTreeDepth = 11;
 
 const circuitUserStateTreeDepth = 5;
 
-const circuitEpochTreeDepth = 32;
+const circuitEpochTreeDepth = 64;
 
 const maxReputationBudget = 10;
 
