@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, verifyEpochKeyCircuitPath, proveReputationCircuitPath, proveUserSignUpCircuitPath, startTransitionCircuitPath, processAttestationsCircuitPath, userStateTransitionCircuitPath, } from '../config'
+import { circuitGlobalStateTreeDepth, circuitUserStateTreeDepth, circuitEpochTreeDepth, numEpochKeyNoncePerEpoch, numAttestationsPerProof, maxReputationBudget, verifyEpochKeyCircuitPath, proveReputationCircuitPath, startTransitionCircuitPath, processAttestationsCircuitPath, userStateTransitionCircuitPath, proveUserSignUpCircuitPath, } from '../config'
 
 const main = async () => {
     let testCircuitContent
